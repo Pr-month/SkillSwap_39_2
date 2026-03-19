@@ -7,7 +7,7 @@ import { AuthController } from './auth.controller';
   imports: [
     JwtModule.registerAsync({
       imports: [],
-      useFactory: async () => ({
+      useFactory: () => ({
         secret: 'should be from config',
       }),
       inject: [],
