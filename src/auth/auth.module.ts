@@ -11,7 +11,7 @@ import { AuthController } from './auth.controller';
         secret: 'should be from config',
       }),
       inject: [],
-   }),
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService],
