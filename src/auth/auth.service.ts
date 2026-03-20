@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private jwtService: JwtService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
+
+  async logout(userId: number): Promise<void> {
+    await this.usersService.removeRefreshToken(userId);
+  }
 }
