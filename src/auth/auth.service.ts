@@ -5,7 +5,7 @@ import { UsersService } from '../users/users.service';
 export class AuthService {
   constructor(private readonly usersService: UsersService) {}
 
-  async logout(userId: number): Promise<void> {
+  async logout(userId: string): Promise<void> {
     await this.usersService.removeRefreshToken(userId);
   }
 }

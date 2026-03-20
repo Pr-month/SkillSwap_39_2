@@ -34,5 +34,5 @@ export class User {
   role: UserRole;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  refreshToken?: string;
+  refreshToken?: string | null;
 }

@@ -10,11 +10,11 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
   ) {}
 
-  async removeRefreshToken(userId: number): Promise<void> {
+  async removeRefreshToken(userId: string): Promise<void> {
     await this.usersRepository.update(userId, { refreshToken: null });
   }
 
-  async findById(userId: number): Promise<User | null> {
+  async findById(userId: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { id: userId } });
   }
 }
