@@ -6,12 +6,14 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { dbConfig, TDBConfig } from './config/db.config';
+import { jwtConfig } from './config/jwt.config';
+import { appConfig } from './config/app.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [dbConfig]
+      load: [dbConfig, jwtConfig, appConfig]
     }),
     TypeOrmModule.forRootAsync({
       inject: [dbConfig.KEY],
