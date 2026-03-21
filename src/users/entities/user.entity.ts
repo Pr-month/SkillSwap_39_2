@@ -36,3 +36,6 @@ export class User {
   @Column({ type: 'varchar', length: 500, nullable: true })
   refreshToken?: string | null;
 }
+
+/** Fields from {@link User} required to build access/refresh JWTs. */
+export type UserTokenSubject = Pick<User, 'id' | 'email'>;

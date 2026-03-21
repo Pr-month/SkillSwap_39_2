@@ -3,6 +3,9 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -29,5 +32,11 @@ export class UsersService {
     refreshToken: string,
   ): Promise<void> {
     await this.usersRepository.update(userId, { refreshToken });
+  async removeRefreshToken(userId: string): Promise<void> {
+    await this.usersRepository.update(userId, { refreshToken: null });
+  }
+
+  async findById(userId: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { id: userId } });
   }
 }
