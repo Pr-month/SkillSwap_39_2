@@ -25,7 +25,7 @@ export class UsersService {
   }
 
   async updateRefreshToken(
-    userId: number,
+    userId: string,
     refreshToken: string,
   ): Promise<void> {
     await this.usersRepository.update(userId, { refreshToken });
