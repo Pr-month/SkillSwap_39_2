@@ -14,11 +14,7 @@ export class AuthController {
   async refresh(
     @Req() req: IRequestWithUser,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    if (!req.user) {
-      throw new Error('User not found in request');
-    }
-
-    const user: User = req.user;
+    const user: User = req.user!;
     return this.authService.refreshTokens(user);
   }
 }

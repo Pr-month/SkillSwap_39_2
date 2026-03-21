@@ -8,13 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../users/users.service';
 import { IRequestWithUser } from '../types/express';
 import { User } from '../../users/entities/user.entity';
-
-interface IRefreshTokenPayload {
-  sub: number;
-  email: string;
-  iat?: number;
-  exp?: number;
-}
+import { IRefreshTokenPayload } from '../types/auth.types';
 
 @Injectable()
 export class RefreshAuthGuard implements CanActivate {
@@ -25,27 +19,29 @@ export class RefreshAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<IRequestWithUser>();
+
     const refreshToken = req.cookies?.Refresh;
 
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
     }
 
-    let payload: IRefreshTokenPayload;
     try {
-      payload = this.jwtService.verify<IRefreshTokenPayload>(refreshToken);
-    } catch {
+      const payload =
+        this.jwtService.verify<IRefreshTokenPayload>(refreshToken);
+
+      const user: User | null = await this.usersService.findByEmail(
+        payload.email,
+      );
+
+      if (!user || user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException('Invalid or expired refresh token');
+      }
+
+      req.user = user;
+      return true;
+    } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
-
-    const user: User | null = await this.usersService.findByEmail(
-      payload.email,
-    );
-    if (!user || user.refreshToken !== refreshToken) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
-    req.user = user;
-    return true;
   }
 }
