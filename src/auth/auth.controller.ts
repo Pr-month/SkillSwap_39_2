@@ -7,6 +7,7 @@ import { RequestWithUser } from './types/request-with-user.interface';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
+  
   @Post('register') @HttpCode(201) async register(
     @Body() dto: RegisterDto,
   ): Promise<{ userId: string; accessToken: string; refreshToken: string }> {
@@ -19,11 +20,23 @@ export class AuthController {
       refreshToken,
     };
   }
+  
+  @UseGuards(RefreshAuthGuard)
+  @Post('refresh')
+  @HttpCode(200)
+  async refresh(
+    @Req() req: IRequestWithUser,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const user: User = req.user!;
+    return this.authService.refreshTokens(user);
+  }
+  
   @Post('logout')
   @HttpCode(200)
   async logout(@Req() req: RequestWithUser) {
     return await this.authService.logout(req.user.sub);
   }
+  
 
   @Post('login')
   async login(@Body() dto: LoginDto) {

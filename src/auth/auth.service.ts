@@ -43,6 +43,7 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
+  
   async login(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
 
@@ -55,5 +56,15 @@ export class AuthService {
 
   async logout(userId: string): Promise<void> {
     await this.usersService.removeRefreshToken(userId);
+  }
+  
+    async refreshTokens(
+    user: User,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const tokens = await this.generateTokens(user);
+
+    await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
   }
 }
