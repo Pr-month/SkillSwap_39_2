@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import type { StringValue } from "ms";
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import type { StringValue } from "ms";
       },
       inject: [],
     }),
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],
