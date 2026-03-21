@@ -13,7 +13,7 @@ import { appConfig } from './config/app.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [dbConfig, jwtConfig, appConfig]
+      load: [dbConfig, jwtConfig, appConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [dbConfig.KEY],
