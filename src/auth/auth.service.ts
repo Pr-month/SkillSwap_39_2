@@ -1,5 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
+import { User } from '../users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import type { StringValue } from 'ms';
 import { UsersService } from '../users/users.service';
@@ -15,6 +17,32 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
+    async registerUser(
+    email: string,
+    password: string,
+  ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
+    const existingUser = await this.usersService.findByEmail(email);
+    if (existingUser) {
+      throw new Error('User already exists');
+    }
+    const user = await this.usersService.createUser(email, password);
+    const { accessToken, refreshToken } = this.generateTokens(user);
+    await this.usersService.updateRefreshToken(user.id, refreshToken);
+    return { user, accessToken, refreshToken };
+  }
+  async logout(userId: string): Promise<void> {
+    await this.usersService.removeRefreshToken(userId);
+  }
+  private generateTokens(user: User): {
+    accessToken: string;
+    refreshToken: string;
+  } {
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    return { accessToken, refreshToken };
+  }
+  
   async login(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
 
