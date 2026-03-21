@@ -9,7 +9,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
   ) {}
-
   async registerUser(
     email: string,
     password: string,
@@ -18,15 +17,21 @@ export class AuthService {
     if (existingUser) {
       throw new Error('User already exists');
     }
-
     const user = await this.usersService.createUser(email, password);
-
-    const payload = { sub: user.id, email: user.email };
+    const { accessToken, refreshToken } = this.generateTokens(user);
+    await this.usersService.updateRefreshToken(user.id, refreshToken);
+    return { user, accessToken, refreshToken };
+  }
+  async logout(userId: string): Promise<void> {
+    await this.usersService.removeRefreshToken(userId);
+  }
+  private generateTokens(user: User): {
+    accessToken: string;
+    refreshToken: string;
+  } {
+    const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
-
-    await this.usersService.updateRefreshToken(user.id, refreshToken);
-
-    return { user, accessToken, refreshToken };
+    return { accessToken, refreshToken };
   }
 }
