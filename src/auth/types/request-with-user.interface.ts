@@ -1,6 +1,6 @@
 import { Request } from 'express';
-import { JwtPayload } from 'jsonwebtoken';
+import type { AccessTokenPayload } from '../auth.types';
 
 export interface RequestWithUser extends Request {
-  user: JwtPayload;
+  user: AccessTokenPayload;
 }
