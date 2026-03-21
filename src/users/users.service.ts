@@ -3,16 +3,13 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async createUser(email: string, password: string): Promise<User> {
     const hashedPassword: string = await bcrypt.hash(password, 10);
@@ -28,10 +25,12 @@ export class UsersService {
   }
 
   async updateRefreshToken(
-    userId: number,
+    userId: string,
     refreshToken: string,
   ): Promise<void> {
     await this.usersRepository.update(userId, { refreshToken });
+  }
+
   async removeRefreshToken(userId: string): Promise<void> {
     await this.usersRepository.update(userId, { refreshToken: null });
   }

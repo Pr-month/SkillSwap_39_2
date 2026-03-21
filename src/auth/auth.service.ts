@@ -4,7 +4,6 @@ import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import type { StringValue } from 'ms';
-import { UsersService } from '../users/users.service';
 import { UserTokenSubject } from '../users/entities/user.entity';
 import { TJwtConfig } from '../config/jwt.config';
 import type { AccessTokenPayload, RefreshTokenPayload } from './auth.types';
@@ -15,9 +14,9 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
-    async registerUser(
+  async registerUser(
     email: string,
     password: string,
   ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
@@ -30,9 +29,7 @@ export class AuthService {
     await this.usersService.updateRefreshToken(user.id, refreshToken);
     return { user, accessToken, refreshToken };
   }
-  async logout(userId: string): Promise<void> {
-    await this.usersService.removeRefreshToken(userId);
-  }
+
   private generateTokens(user: User): {
     accessToken: string;
     refreshToken: string;
@@ -42,7 +39,7 @@ export class AuthService {
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
     return { accessToken, refreshToken };
   }
-  
+
   async login(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
 
