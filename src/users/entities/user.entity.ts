@@ -12,7 +12,7 @@ export class User {
   @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 255, select: false })
+  @Column({ type: 'varchar', length: 255 })
   password: string;
 
   @Column({ type: 'text', nullable: true })
@@ -33,6 +33,6 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
-  @Column({ type: 'varchar', length: 500, nullable: true, select: false })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   refreshToken?: string | null;
 }
