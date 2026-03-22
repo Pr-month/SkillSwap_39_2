@@ -9,7 +9,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async createUser(email: string, password: string): Promise<User> {
     const hashedPassword: string = await bcrypt.hash(password, 10);

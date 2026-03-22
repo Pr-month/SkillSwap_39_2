@@ -1,47 +1,9 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../../users/users.service';
-import { IRequestWithUser } from '../types/express';
-import { User } from '../../users/entities/user.entity';
-import { IRefreshTokenPayload } from '../types/auth.types';
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+/**
+ * Activates Passport strategy `jwt-refresh`: verifies refresh JWT (REFRESH_TOKEN_KEY),
+ * then ensures the token matches the one stored for the user (rotation / revocation).
+ */
 @Injectable()
-export class RefreshAuthGuard implements CanActivate {
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly usersService: UsersService,
-  ) {}
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<IRequestWithUser>();
-
-    const refreshToken = req.cookies?.Refresh;
-
-    if (!refreshToken) {
-      throw new UnauthorizedException('No refresh token provided');
-    }
-
-    try {
-      const payload =
-        this.jwtService.verify<IRefreshTokenPayload>(refreshToken);
-
-      const user: User | null = await this.usersService.findByEmail(
-        payload.email,
-      );
-
-      if (!user || user.refreshToken !== refreshToken) {
-        throw new UnauthorizedException('Invalid or expired refresh token');
-      }
-
-      req.user = user;
-      return true;
-    } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-  }
-}
+export class RefreshAuthGuard extends AuthGuard('jwt-refresh') {}
