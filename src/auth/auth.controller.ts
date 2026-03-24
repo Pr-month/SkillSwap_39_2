@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -9,7 +16,7 @@ import { IRequestWithUser } from './types/express';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   async login(@Body() dto: LoginDto) {
@@ -17,7 +24,9 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() dto: RegisterDto,): Promise<{ userId: string; accessToken: string; refreshToken: string }> {
+  async register(
+    @Body() dto: RegisterDto,
+  ): Promise<{ userId: string; accessToken: string; refreshToken: string }> {
     const { user, accessToken, refreshToken } =
       await this.authService.registerUser(dto.email, dto.password);
 

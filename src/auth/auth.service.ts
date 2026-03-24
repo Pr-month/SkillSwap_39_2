@@ -1,9 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import type { StringValue } from 'ms';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
+import type { TJwtConfig } from '../config/jwt.config';
+import type { RefreshTokenPayload } from './auth.types';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +14,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async registerUser(
     email: string,
@@ -31,24 +34,40 @@ export class AuthService {
     accessToken: string;
     refreshToken: string;
   }> {
-    const payload = {
+    const jwt = this.configService.get<TJwtConfig>('JWT_CONFIG');
+    if (!jwt?.access_token_key || !jwt?.refresh_token_key) {
+      throw new Error('JWT keys are not configured');
+    }
+
+    const accessPayload = {
       sub: user.id,
       email: user.email,
       role: user.role,
     };
+    const refreshPayload: RefreshTokenPayload = { sub: user.id };
 
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, { expiresIn: '15m' }),
-      this.jwtService.signAsync(payload, { expiresIn: '7d' }),
+      this.jwtService.signAsync(accessPayload, {
+        secret: jwt.access_token_key,
+        expiresIn: jwt.access_token_expiry as StringValue,
+      }),
+      this.jwtService.signAsync(refreshPayload, {
+        secret: jwt.refresh_token_key,
+        expiresIn: jwt.refresh_token_expiry as StringValue,
+      }),
     ]);
 
     return { accessToken, refreshToken };
   }
-  
+
   async login(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+    const passwordOk = await bcrypt.compare(password, user.password);
+    if (!passwordOk) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
@@ -58,6 +77,7 @@ export class AuthService {
   async logout(userId: string): Promise<void> {
     await this.usersService.removeRefreshToken(userId);
   }
+
   
   async refreshTokens(
     user: User,
