@@ -78,7 +78,6 @@ export class AuthService {
     await this.usersService.removeRefreshToken(userId);
   }
 
-  
   async refreshTokens(
     user: User,
   ): Promise<{ accessToken: string; refreshToken: string }> {

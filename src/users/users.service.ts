@@ -5,7 +5,11 @@ import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { AccessTokenPayload } from '../auth/auth.types';
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
@@ -53,19 +57,28 @@ export class UsersService {
 
     return this.usersRepository.save(user);
   }
-  
-  async updatePassword(payload: AccessTokenPayload, updatePasswordDTO: UpdatePasswordDto): Promise<User | null> {
+
+  async updatePassword(
+    payload: AccessTokenPayload,
+    updatePasswordDTO: UpdatePasswordDto,
+  ): Promise<User | null> {
     const user = await this.findById(payload.sub);
 
     if (!user) {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    if (user.email !== payload.email || user.email !== updatePasswordDTO.email){
+    if (
+      user.email !== payload.email ||
+      user.email !== updatePasswordDTO.email
+    ) {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    const hashedPassword: string = await bcrypt.hash(updatePasswordDTO.password, 10);
+    const hashedPassword: string = await bcrypt.hash(
+      updatePasswordDTO.password,
+      10,
+    );
     await this.usersRepository.update(user.id, { password: hashedPassword });
 
     return user;
