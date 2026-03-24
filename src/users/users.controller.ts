@@ -9,6 +9,12 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { User } from './entities/user.entity';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
+import { RequestWithUser } from '../auth/types/request-with-user.interface';
 
 @Controller('users')
 export class UsersController {
@@ -26,5 +32,10 @@ export class UsersController {
     const { password, ...safeUser } = user;
 
     return safeUser;
+  }
+  
+  @Post('/me/password')
+  updatePassword(@Req() req: RequestWithUser, @Body() updatePasswordDTO: UpdatePasswordDto) {
+    return this.usersService.updatePassword(req.user, updatePasswordDTO);
   }
 }
