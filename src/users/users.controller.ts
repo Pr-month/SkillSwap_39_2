@@ -22,6 +22,19 @@ export class UsersController {
 
     return safeUser;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('me')
+  async updateMe(
+    @Req() req: RequestWithUser,
+    @Body() dto: UpdateUserDto,
+  ): Promise<Omit<User, 'password'>> {
+    const user = await this.usersService.updateUser(req.user.sub, dto);
+
+    const { password, ...safeUser } = user;
+
+    return safeUser;
+    }
   
   @Post('/me/password')
   updatePassword(@Req() req: RequestWithUser, @Body() updatePasswordDTO: UpdatePasswordDto) {
