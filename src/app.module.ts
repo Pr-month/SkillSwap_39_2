@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { dbConfig, TDBConfig } from './config/db.config';
 import { jwtConfig } from './config/jwt.config';
 import { appConfig } from './config/app.config';
+import { SkillsModule } from './skills/skills.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { appConfig } from './config/app.config';
     }),
     AuthModule,
     UsersModule,
+    SkillsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
