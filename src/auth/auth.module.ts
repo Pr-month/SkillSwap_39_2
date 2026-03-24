@@ -26,6 +26,7 @@ import { TJwtConfig } from '../config/jwt.config';
       },
       inject: [ConfigService],
     }),
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],
