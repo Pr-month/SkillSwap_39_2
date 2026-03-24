@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import { AccessTokenPayload } from '../auth/auth.types';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
@@ -37,5 +40,34 @@ export class UsersService {
 
   async findById(userId: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { id: userId } });
+  }
+
+  async updateUser(userId: string, dto: UpdateUserDto): Promise<User> {
+    const user = await this.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    Object.assign(user, dto);
+
+    return this.usersRepository.save(user);
+  }
+  
+  async updatePassword(payload: AccessTokenPayload, updatePasswordDTO: UpdatePasswordDto): Promise<User | null> {
+    const user = await this.findById(payload.sub);
+
+    if (!user) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    if (user.email !== payload.email || user.email !== updatePasswordDTO.email){
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    const hashedPassword: string = await bcrypt.hash(updatePasswordDTO.password, 10);
+    await this.usersRepository.update(user.id, { password: hashedPassword });
+
+    return user;
   }
 }

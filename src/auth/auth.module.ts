@@ -30,6 +30,7 @@ import { RefreshJwtStrategy } from './strategies/jwt-refresh.strategy';
       },
       inject: [ConfigService],
     }),
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, RefreshJwtStrategy],
