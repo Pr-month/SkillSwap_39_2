@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { UserRole, Gender } from '../users.enums';
+import { Skill } from '../../skills/entities/skill.entity';
 
 @Entity('users')
 export class User {
@@ -35,4 +36,7 @@ export class User {
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   refreshToken?: string | null;
+
+  @OneToMany(() => Skill, (skill) => skill.owner, { cascade: true })
+  skills?: Skill[];
 }
