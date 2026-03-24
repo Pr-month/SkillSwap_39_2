@@ -14,9 +14,9 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  
+
   const configService = app.get(ConfigService);
   const appConfigData = configService.get<TAppConfig>('APP_CONFIG');
   await app.listen(appConfigData?.port ?? 3000);
 }
-bootstrap();
+void bootstrap();
