@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import { AccessTokenPayload } from '../auth/auth.types';
 
 @Injectable()
 export class UsersService {
@@ -39,7 +41,20 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { id: userId } });
   }
 
-  async findAll() {
-    return await this.usersRepository.find();
+  async updatePassword(payload: AccessTokenPayload, updatePasswordDTO: UpdatePasswordDto): Promise<User | null> {
+    const user = await this.findById(payload.sub);
+
+    if (!user) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    if (user.email !== payload.email || user.email !== updatePasswordDTO.email){
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    const hashedPassword: string = await bcrypt.hash(updatePasswordDTO.password, 10);
+    await this.usersRepository.update(user.id, { password: hashedPassword });
+
+    return user;
   }
 }
