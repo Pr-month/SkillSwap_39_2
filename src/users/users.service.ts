@@ -1,5 +1,3 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { AccessTokenPayload } from '../auth/auth.types';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {

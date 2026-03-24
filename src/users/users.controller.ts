@@ -1,9 +1,10 @@
-import { Controller, UseGuards, Get, Req, NotFoundException, Post, Body } from "@nestjs/common";
+import { Controller, UseGuards, Get, Req, NotFoundException, Post, Body, Patch } from "@nestjs/common";
 import { JwtAuthGuard } from "src/auth/guards/jwtAuth.guard";
 import { RequestWithUser } from "src/auth/types/request-with-user.interface";
 import { UpdatePasswordDto } from "./dto/update-password.dto";
 import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Controller('users')
 export class UsersController {
