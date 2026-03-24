@@ -1,17 +1,9 @@
-import {
-  Controller,
-  Get,
-  Patch,
-  Body,
-  Req,
-  UseGuards,
-  NotFoundException,
-} from '@nestjs/common';
-import { UsersService } from './users.service';
-import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
-import { RequestWithUser } from '../auth/types/request-with-user.interface';
-import { User } from './entities/user.entity';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Controller, UseGuards, Get, Req, NotFoundException, Post, Body } from "@nestjs/common";
+import { JwtAuthGuard } from "src/auth/guards/jwtAuth.guard";
+import { RequestWithUser } from "src/auth/types/request-with-user.interface";
+import { UpdatePasswordDto } from "./dto/update-password.dto";
+import { User } from "./entities/user.entity";
+import { UsersService } from "./users.service";
 
 @Controller('users')
 export class UsersController {
@@ -42,5 +34,10 @@ export class UsersController {
     const { password, ...safeUser } = user;
 
     return safeUser;
+    }
+  
+  @Post('/me/password')
+  updatePassword(@Req() req: RequestWithUser, @Body() updatePasswordDTO: UpdatePasswordDto) {
+    return this.usersService.updatePassword(req.user, updatePasswordDTO);
   }
 }

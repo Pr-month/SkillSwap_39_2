@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 
@@ -47,7 +48,7 @@ export class AuthService {
   async login(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
 
-    if (!user || user.password !== password) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
@@ -58,7 +59,7 @@ export class AuthService {
     await this.usersService.removeRefreshToken(userId);
   }
   
-    async refreshTokens(
+  async refreshTokens(
     user: User,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const tokens = await this.generateTokens(user);
