@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import type { TJwtConfig } from '../config/jwt.config';
-import type { RefreshTokenPayload } from './auth.types';
+import type { AccessTokenPayload, RefreshTokenPayload } from './auth.types';
 
 @Injectable()
 export class AuthService {
@@ -39,7 +39,7 @@ export class AuthService {
       throw new Error('JWT keys are not configured');
     }
 
-    const accessPayload = {
+    const accessPayload: AccessTokenPayload = {
       sub: user.id,
       email: user.email,
       role: user.role,
