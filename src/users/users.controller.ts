@@ -20,6 +20,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(JwtAuthGuard)
+  @Get()
+  async getAllUsers(): Promise<Omit<User, 'password' | 'refreshToken'>[]> {
+    const users = await this.usersService.findAll();
+
+    return users.map(({ password, refreshToken, ...user }) => user);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@Req() req: RequestWithUser): Promise<Omit<User, 'password'>> {
     const user = await this.usersService.findById(req.user.sub);
