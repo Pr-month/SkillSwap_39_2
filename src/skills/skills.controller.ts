@@ -1,12 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { SkillsService } from './skills.service';
+import { PaginationQueryDto } from './dto/pagination-query.dto'
 
 @Controller('skills')
 export class SkillsController {
   constructor(private readonly skillsService: SkillsService) {}
 
   @Get()
-  findAll() {
-    return "it just works";
+  async findAll(@Query() query: PaginationQueryDto) {
+    return this.skillsService.getSkillsWithPagination(query);
   }
+  
 }
