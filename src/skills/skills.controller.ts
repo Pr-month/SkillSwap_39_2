@@ -1,12 +1,13 @@
-import { Controller, Patch, Param, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Patch, Param, Body, UseGuards, Req, Delete } from '@nestjs/common';
 import { SkillsService } from './skills.service';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 import { IRequestWithUser } from '../auth/types/express';
+import { RequestWithUser } from 'src/auth/types/request-with-user.interface';
 
 @Controller('skills')
 export class SkillsController {
-  constructor(private readonly skillsService: SkillsService) {}
+  constructor(private readonly skillsService: SkillsService) { }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
@@ -16,5 +17,16 @@ export class SkillsController {
     @Body() updateSkillDto: UpdateSkillDto,
   ) {
     return this.skillsService.update(id, req.user!.id, updateSkillDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async deleteSkill(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ): Promise<{ message: string }> {
+    await this.skillsService.deleteSkill(id, req.user.sub);
+
+    return { message: 'Skill deleted successfully' };
   }
 }
