@@ -53,18 +53,17 @@ export class RefreshJwtStrategy extends PassportStrategy(
       throw new UnauthorizedException('Refresh token missing');
     }
     const user = await this.usersService.findById(payload.sub);
-    
+
     if (!user?.refreshToken) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const refreshTokenOk = await bcrypt.compare(token, user.refreshToken)
+    const refreshTokenOk = await bcrypt.compare(token, user.refreshToken);
 
-       if (!refreshTokenOk) {
+    if (!refreshTokenOk) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
     return user;
   }
 }
-

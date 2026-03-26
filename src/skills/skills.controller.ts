@@ -7,6 +7,6 @@ export class SkillsController {
 
   @Get()
   findAll() {
-    return "it just works";
+    return 'it just works';
   }
 }
