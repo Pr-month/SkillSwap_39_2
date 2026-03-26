@@ -4,8 +4,7 @@ import type { StringValue } from 'ms';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
-import type { TJwtConfig } from '../config/jwt.config';
-import type { AccessTokenPayload, RefreshTokenPayload } from './auth.types';
+import type { AccessTokenPayload } from './auth.types';
 import { jwtConfig, type TJwtConfig } from '../config/jwt.config';
 import type { RefreshTokenPayload } from './auth.types';
 
@@ -16,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly configService: TJwtConfig,
-  ) {}
+  ) { }
 
   async registerUser(
     email: string,
