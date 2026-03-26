@@ -1,11 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { StringValue } from 'ms';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
-import type { TJwtConfig } from '../config/jwt.config';
+import { jwtConfig, type TJwtConfig } from '../config/jwt.config';
 import type { RefreshTokenPayload } from './auth.types';
 
 @Injectable()
@@ -13,7 +12,8 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    @Inject(jwtConfig.KEY)
+    private readonly configService: TJwtConfig,
   ) {}
 
   async registerUser(
@@ -30,10 +30,7 @@ export class AuthService {
     accessToken: string;
     refreshToken: string;
   }> {
-    const jwt = this.configService.get<TJwtConfig>('JWT_CONFIG');
-    if (!jwt?.access_token_key || !jwt?.refresh_token_key) {
-      throw new Error('JWT keys are not configured');
-    }
+    const jwt = this.configService;
 
     const accessPayload = {
       sub: user.id,
