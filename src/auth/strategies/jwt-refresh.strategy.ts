@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersService } from '../../users/users.service';
@@ -52,9 +53,18 @@ export class RefreshJwtStrategy extends PassportStrategy(
       throw new UnauthorizedException('Refresh token missing');
     }
     const user = await this.usersService.findById(payload.sub);
-    if (!user?.refreshToken || user.refreshToken !== token) {
+    
+    if (!user?.refreshToken) {
       throw new UnauthorizedException('Invalid refresh token');
     }
+
+    const refreshTokenOk = await bcrypt.compare(token, user.refreshToken)
+
+       if (!refreshTokenOk) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
     return user;
   }
 }
+
