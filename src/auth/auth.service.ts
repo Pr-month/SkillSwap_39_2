@@ -20,10 +20,6 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
-    const existingUser = await this.usersService.findByEmail(email);
-    if (existingUser) {
-      throw new Error('User already exists');
-    }
     const user = await this.usersService.createUser(email, password);
     const { accessToken, refreshToken } = await this.generateTokens(user);
     await this.usersService.updateRefreshToken(user.id, refreshToken);
