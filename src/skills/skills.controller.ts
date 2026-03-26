@@ -17,8 +17,8 @@ export class SkillsController {
     @Body() updateSkillDto: UpdateSkillDto,
   ) {
     return this.skillsService.update(id, req.user!.id, updateSkillDto);
-  }
-
+  }  
+    
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteSkill(
