@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { TAppConfig } from './config/app.config';
 import { ValidationPipe } from '@nestjs/common';
+import { AllExceptionFilter } from './common/all-exception.filter';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
@@ -17,6 +18,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  app.useGlobalFilters(new AllExceptionFilter());
 
   const configService = app.get(ConfigService);
   const appConfigData = configService.get<TAppConfig>('APP_CONFIG');
