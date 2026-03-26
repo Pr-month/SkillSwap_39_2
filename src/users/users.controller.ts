@@ -46,6 +46,7 @@ export class UsersController {
     return safeUser;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('/me/password')
   updatePassword(
     @Req() req: RequestWithUser,
