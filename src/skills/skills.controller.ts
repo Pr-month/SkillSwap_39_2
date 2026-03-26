@@ -3,6 +3,10 @@ import { SkillsService } from './skills.service';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 import { IRequestWithUser } from '../auth/types/express';
+import { Controller, Delete, Param, UseGuards, Req } from '@nestjs/common';
+import { SkillsService } from './skills.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
+import { RequestWithUser } from 'src/auth/types/request-with-user.interface';
 
 @Controller('skills')
 export class SkillsController {
@@ -16,5 +20,15 @@ export class SkillsController {
     @Body() updateSkillDto: UpdateSkillDto,
   ) {
     return this.skillsService.update(id, req.user!.id, updateSkillDto);
+  }  
+    
+  @Delete(':id')
+  async deleteSkill(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ): Promise<{ message: string }> {
+    await this.skillsService.deleteSkill(id, req.user.sub);
+
+    return { message: 'Skill deleted successfully' };
   }
 }

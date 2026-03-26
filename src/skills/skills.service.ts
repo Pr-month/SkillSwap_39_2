@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Skill } from './entities/skill.entity';
 import { UpdateSkillDto } from './dto/update-skill.dto';
+import { Skill } from './entities/skill.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SkillsService {
@@ -31,5 +33,21 @@ export class SkillsService {
 
     Object.assign(skill, updateSkillDto);
     return await this.skillsRepository.save(skill);
+  }
+  
+  async deleteSkill(skillId: string, userId: string): Promise<void> {
+    const skill = await this.skillsRepository.findOne({
+      where: { id: skillId },
+    });
+
+    if (!skill) {
+      throw new NotFoundException('Skill not found');
+    }
+
+    if (skill.userId !== userId) {
+      throw new ForbiddenException('You can delete only your own skill');
+    }
+
+    await this.skillsRepository.delete(skillId);
   }
 }
