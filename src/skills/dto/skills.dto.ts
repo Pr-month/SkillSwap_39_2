@@ -1,4 +1,38 @@
-import { IsString, IsOptional, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  MinLength,
+  Length,
+  IsEmail,
+  ValidateNested,
+} from 'class-validator';
+import { Type, Exclude } from 'class-transformer';
+
+export class OwnerDTO {
+  @IsString()
+  id: string;
+
+  @Length(1, 100)
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @Exclude()
+  password?: string;
+
+  @Exclude()
+  createdAt?: Date;
+
+  @Exclude()
+  updatedAt?: Date;
+
+  @Exclude()
+  refreshToken?: string;
+
+  @Exclude()
+  role?: string;
+}
 
 export class SkillDto {
   @IsString()
@@ -21,5 +55,9 @@ export class SkillDto {
   @IsString()
   @IsOptional()
   @MinLength(2)
-  images: string[]; 
+  images?: string[];
+
+  @ValidateNested()
+  @Type(() => OwnerDTO)
+  owner: OwnerDTO;
 }
