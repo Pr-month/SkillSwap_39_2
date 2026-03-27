@@ -10,6 +10,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  Inject
 } from '@nestjs/common';
 import { appConfig, TAppConfig } from '../config/app.config';
 
@@ -19,14 +20,13 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     @Inject(appConfig.KEY)
-    private readonly configService: TAppConfig,
+    private readonly appConfig: TAppConfig
   ) {}
 
+  
+
   async createUser(email: string, password: string): Promise<User> {
-    const hashedPassword: string = await bcrypt.hash(
-      password,
-      this.configService.hashSalt,
-    );
+    const hashedPassword: string = await bcrypt.hash(password, this.appConfig.hashSalt);
     const user: User = this.usersRepository.create({
       email,
       password: hashedPassword,
@@ -42,7 +42,10 @@ export class UsersService {
     userId: string,
     refreshToken: string,
   ): Promise<void> {
-    await this.usersRepository.update(userId, { refreshToken });
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, this.appConfig.hashSalt);
+    await this.usersRepository.update(userId, {
+      refreshToken: hashedRefreshToken,
+    });
   }
 
   async removeRefreshToken(userId: string): Promise<void> {
@@ -84,7 +87,7 @@ export class UsersService {
 
     const hashedPassword: string = await bcrypt.hash(
       updatePasswordDTO.password,
-      10,
+      this.appConfig.hashSalt,
     );
     await this.usersRepository.update(user.id, { password: hashedPassword });
 
