@@ -10,7 +10,6 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
-  Inject
 } from '@nestjs/common';
 import { appConfig, TAppConfig } from '../config/app.config';
 
@@ -21,9 +20,7 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
     @Inject(appConfig.KEY)
     private readonly appConfig: TAppConfig
-  ) {}
-
-  
+  ) { }
 
   async createUser(email: string, password: string): Promise<User> {
     const hashedPassword: string = await bcrypt.hash(password, this.appConfig.hashSalt);
