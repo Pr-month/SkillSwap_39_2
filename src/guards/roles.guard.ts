@@ -1,7 +1,13 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UserRole } from '../users/users.enums';
 import { Roles } from '../decorators/roles.decorator';
+import { RequestWithUser } from '../auth/types/request-with-user.interface';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -14,10 +20,11 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request: RequestWithUser = context.switchToHttp().getRequest();
     const user = request.user;
-    
-    if (!roles.includes(user.role)) throw new ForbiddenException('Доступ запрещен');
+
+    if (!roles.includes(user.role))
+      throw new ForbiddenException('Доступ запрещен');
 
     return true;
   }
