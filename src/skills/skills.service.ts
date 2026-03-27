@@ -13,7 +13,21 @@ export class SkillsService {
   constructor(
     @InjectRepository(Skill)
     private readonly skillsRepository: Repository<Skill>,
-  ) { }
+  ) {}
+
+  async create(dto: CreateSkillDto, ownerId: string): Promise<Skill> {
+    const skill = this.skillsRepository.create({
+      name: dto.name,
+      description: dto.description,
+      images: dto.images,
+      owner: { id: ownerId },
+    });
+    return this.skillsRepository.save(skill);
+  }
+
+  findAll(): Promise<Skill[]> {
+    return this.skillsRepository.find({ order: { name: 'ASC' } });
+  }
 
   async update(id: string, userId: string, updateSkillDto: UpdateSkillDto) {
     const skill = await this.skillsRepository.findOne({
@@ -32,6 +46,7 @@ export class SkillsService {
     Object.assign(skill, updateSkillDto);
     return await this.skillsRepository.save(skill);
   }
+  
   async deleteSkill(skillId: string, userId: string): Promise<void> {
     const skill = await this.skillsRepository.findOne({
       where: { id: skillId },

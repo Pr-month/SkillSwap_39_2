@@ -9,6 +9,17 @@ import { RequestWithUser } from 'src/auth/types/request-with-user.interface';
 export class SkillsController {
   constructor(private readonly skillsService: SkillsService) { }
 
+  @Get()
+  findAll(): Promise<Skill[]> {
+    return this.skillsService.findAll();
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  create(@Req() req: RequestWithUser, @Body() dto: CreateSkillDto): Promise<Skill> {
+    return this.skillsService.create(dto, req.user.sub);
+ }
+  
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
