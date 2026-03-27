@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { UserRole, Gender } from '../users.enums';
-import { Skill } from 'src/skills/entities/skill.entity';
+import { Exclude } from 'class-transformer';
+import { Skill } from '../../skills/entities/skill.entity';
 
 @Entity('users')
 export class User {
@@ -13,6 +14,7 @@ export class User {
   @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
 
+  @Exclude()
   @Column({ type: 'varchar', length: 255 })
   password: string;
 
@@ -34,9 +36,10 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
+  @Exclude()
   @Column({ type: 'varchar', length: 500, nullable: true })
   refreshToken?: string | null;
 
-  @OneToMany(() => Skill, (skill) => skill.owner)
-  skills: Skill[];
+  @OneToMany(() => Skill, (skill) => skill.owner, { cascade: true })
+  skills?: Skill[];
 }

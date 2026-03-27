@@ -9,6 +9,8 @@ import { dbConfig, TDBConfig } from './config/db.config';
 import { jwtConfig } from './config/jwt.config';
 import { appConfig } from './config/app.config';
 import { SkillsModule } from './skills/skills.module';
+import { FilesModule } from './files/files.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { SkillsModule } from './skills/skills.module';
     AuthModule,
     UsersModule,
     SkillsModule,
+    FilesModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
