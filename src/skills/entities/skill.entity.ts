@@ -1,5 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import type { User } from '../../users/entities/user.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('skills')
 export class Skill {
@@ -15,13 +22,24 @@ export class Skill {
   @Column({ type: 'varchar', length: 100 })
   category: string;
 
-  @Column({ type: 'jsonb', default: () => "'[]'" })
+  @Column('text', { array: true, default: () => "'{}'" })
   images: string[];
 
-  @ManyToOne(
-    () => require('../../users/entities/user.entity').User,
-    (user: User) => user.skills,
-    { nullable: false, onDelete: 'CASCADE' },
-  )
+  @ManyToOne(() => User, (user) => user.skills, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   owner: User;
+
+  @Column()
+  name: string;
+
+  @Column()
+  userId: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
