@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSkillDto } from './dto/create-skill.dto';
@@ -11,16 +11,13 @@ export class SkillsService {
     private readonly skillsRepository: Repository<Skill>,
   ) {}
 
-  async create(dto: CreateSkillDto): Promise<Skill> {
-    const existing = await this.skillsRepository.findOne({
-      where: { name: dto.name },
+  async create(dto: CreateSkillDto, ownerId: string): Promise<Skill> {
+    const skill = this.skillsRepository.create({
+      name: dto.name,
+      description: dto.description,
+      images: dto.images,
+      owner: { id: ownerId },
     });
-
-    if (existing) {
-      throw new ConflictException('Skill already exists');
-    }
-
-    const skill = this.skillsRepository.create({ name: dto.name });
     return this.skillsRepository.save(skill);
   }
 
