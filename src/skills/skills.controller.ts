@@ -1,9 +1,12 @@
-import { Controller, Patch, Param, Body, UseGuards, Req, Delete } from '@nestjs/common';
-import { SkillsService } from './skills.service';
-import { UpdateSkillDto } from './dto/update-skill.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
-import { IRequestWithUser } from '../auth/types/express';
-import { RequestWithUser } from 'src/auth/types/request-with-user.interface';
+import { Controller, Get, Query, Post, UseGuards, Req, Body, Patch, Param, Delete } from "@nestjs/common";
+import { JwtAuthGuard } from "src/auth/guards/jwtAuth.guard";
+import { IRequestWithUser } from "src/auth/types/express";
+import { RequestWithUser } from "src/auth/types/request-with-user.interface";
+import { CreateSkillDto } from "./dto/create-skill.dto";
+import { PaginationQueryDto } from "./dto/pagination-query.dto";
+import { UpdateSkillDto } from "./dto/update-skill.dto";
+import { Skill } from "./entities/skill.entity";
+import { SkillsService } from "./skills.service";
 
 @Controller('skills')
 export class SkillsController {

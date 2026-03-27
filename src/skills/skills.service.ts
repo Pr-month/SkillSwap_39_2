@@ -1,17 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
-import { plainToInstance } from 'class-transformer';
-import { SkillDto } from './dto/skills.dto';
-import { PaginationQueryDto } from './dto/pagination-query.dto';
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { UpdateSkillDto } from './dto/update-skill.dto';
-import { Skill } from './entities/skill.entity';
+import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { plainToInstance } from "class-transformer";
+import { Repository } from "typeorm";
+import { CreateSkillDto } from "./dto/create-skill.dto";
+import { PaginationQueryDto } from "./dto/pagination-query.dto";
+import { SkillDto } from "./dto/skills.dto";
+import { UpdateSkillDto } from "./dto/update-skill.dto";
+import { Skill } from "./entities/skill.entity";
 
 @Injectable()
 export class SkillsService {
@@ -30,7 +25,7 @@ export class SkillsService {
     const offset = (Number(page) - 1) * limit;
 
     // Получаем сущности из БД
-    const [skills, totalSkills] = await this.skillRepository.findAndCount({
+    const [skills, totalSkills] = await this.skillsRepository.findAndCount({
       take: limit,
       skip: offset,
       order: { id: 'ASC' },
@@ -53,7 +48,6 @@ export class SkillsService {
       totalPages,
     };
   }
-}
 
   async create(dto: CreateSkillDto, ownerId: string): Promise<Skill> {
     const skill = this.skillsRepository.create({
