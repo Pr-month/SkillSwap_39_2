@@ -6,12 +6,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { AccessTokenPayload } from '../auth/auth.types';
 import {
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
   Inject
 } from '@nestjs/common';
-import { appConfig, TAppConfig } from 'src/config/app.config';
+import { appConfig, TAppConfig } from '../config/app.config';
 
 @Injectable()
 export class UsersService {
@@ -91,5 +92,9 @@ export class UsersService {
     await this.usersRepository.update(user.id, { password: hashedPassword });
 
     return user;
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 }
