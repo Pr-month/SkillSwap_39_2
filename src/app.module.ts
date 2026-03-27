@@ -10,6 +10,7 @@ import { jwtConfig } from './config/jwt.config';
 import { appConfig } from './config/app.config';
 import { SkillsModule } from './skills/skills.module';
 import { FilesModule } from './files/files.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { FilesModule } from './files/files.module';
     UsersModule,
     SkillsModule,
     FilesModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
