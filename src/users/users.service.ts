@@ -9,14 +9,20 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  Inject
 } from '@nestjs/common';
+import { appConfig, TAppConfig } from 'src/config/app.config';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @Inject(appConfig.KEY)
+    private readonly appConfig: TAppConfig
   ) {}
+
+  
 
   async createUser(email: string, password: string): Promise<User> {
     const hashedPassword: string = await bcrypt.hash(password, 10);
@@ -80,7 +86,7 @@ export class UsersService {
 
     const hashedPassword: string = await bcrypt.hash(
       updatePasswordDTO.password,
-      10,
+      this.appConfig.hashSalt,
     );
     await this.usersRepository.update(user.id, { password: hashedPassword });
 
