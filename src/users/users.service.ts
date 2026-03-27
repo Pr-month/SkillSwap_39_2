@@ -41,7 +41,7 @@ export class UsersService {
     userId: string,
     refreshToken: string,
   ): Promise<void> {
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, this.appConfig.hashSalt);
     await this.usersRepository.update(userId, {
       refreshToken: hashedRefreshToken,
     });
