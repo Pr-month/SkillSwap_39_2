@@ -6,7 +6,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -40,9 +40,9 @@ export class CategoriesService {
 
     try {
       return await this.categoryRepository.save(category);
-    }
-    catch (err) {
-      if (err.code === '23505') {
+    } catch (err) {
+      const error = err as QueryFailedError & { code?: string };
+      if (error.code === '23505') {
         throw new ConflictException(`The category already exists`);
       }
       throw new BadRequestException(`Couldn't create category`);
