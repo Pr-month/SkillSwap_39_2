@@ -34,11 +34,6 @@ export class CategoriesService {
       throw new NotFoundException('User not found');
     }
 
-    //  Проверяем, что пользователь — администратор
-    if (user.role !== 'ADMIN') {
-      throw new ForbiddenException('Only administrators can delete categories');
-    }
-
     await this.categoryRepository.delete(categoryId);
   }
 }
