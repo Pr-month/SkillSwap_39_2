@@ -4,7 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { User } from '../users/entities/user.entity';
 
@@ -15,14 +15,15 @@ export class CategoriesService {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Category[]> {
     return this.categoryRepository.find({
       where: { parent: IsNull() },
       relations: ['children'],
     });
-  
+  }
+
   async deleteCategory(categoryId: string, userId: string): Promise<void> {
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
