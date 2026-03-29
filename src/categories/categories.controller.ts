@@ -1,8 +1,8 @@
-import { Controller, Get, Delete, UseGuards, Param, Req } from '@nestjs/common';
+import { Controller, Delete, UseGuards, Param, Req, Post, Body } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { CategoriesService } from './categories.service';
-import { Category } from './entities/category.entity';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -13,6 +13,12 @@ export class CategoriesController {
     return this.categoriesService.findAll();
   }
   
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  async createCategory(@Req() req: RequestWithUser, @Body() category: CreateCategoryDto) {
+    return this.categoriesService.createCategory(category);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteCategory(
