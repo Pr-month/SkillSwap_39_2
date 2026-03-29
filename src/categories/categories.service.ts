@@ -6,7 +6,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { QueryFailedError, Repository, IsNull } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -18,7 +18,14 @@ export class CategoriesService {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
+
+  async findAll(): Promise<Category[]> {
+    return this.categoryRepository.find({
+      where: { parent: IsNull() },
+      relations: ['children'],
+    });
+  }
 
   async createCategory(dto: CreateCategoryDto) {
     if (dto.parentId) {

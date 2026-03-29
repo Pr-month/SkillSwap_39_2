@@ -8,6 +8,11 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
+  @Get()
+  async getAllCategories(): Promise<Category[]> {
+    return this.categoriesService.findAll();
+  }
+  
   @UseGuards(JwtAuthGuard)
   @Post()
   async createCategory(@Req() req: RequestWithUser, @Body() category: CreateCategoryDto) {
