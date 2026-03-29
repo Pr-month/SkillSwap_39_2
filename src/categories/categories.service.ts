@@ -1,7 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  ForbiddenException,
   BadRequestException,
   ConflictException,
 } from '@nestjs/common';
@@ -19,7 +18,7 @@ export class CategoriesService {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Category[]> {
     return this.categoryRepository.find({
@@ -31,8 +30,8 @@ export class CategoriesService {
   async checkParentId(parentId: string) {
     const parent = await this.categoryRepository.findOne({
       where: {
-        id: parentId
-      }
+        id: parentId,
+      },
     });
     if (!parent) {
       throw new NotFoundException('Parent category not found');
@@ -63,7 +62,7 @@ export class CategoriesService {
 
   async updateCategory(categoryId: string, dto: UpdateCategoryDto) {
     const category = await this.categoryRepository.findOne({
-      where: { id : categoryId },
+      where: { id: categoryId },
       relations: ['parent'],
     });
 
@@ -76,7 +75,9 @@ export class CategoriesService {
     }
 
     if (dto.parentId === categoryId) {
-      throw new ConflictException('Parent category is the same as child category');
+      throw new ConflictException(
+        'Parent category is the same as child category',
+      );
     }
 
     category.name = dto.name;

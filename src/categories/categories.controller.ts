@@ -1,4 +1,14 @@
-import { Controller, Delete, UseGuards, Param, Req, Post, Body, Get, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  UseGuards,
+  Param,
+  Req,
+  Post,
+  Body,
+  Get,
+  Patch,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -17,10 +27,13 @@ export class CategoriesController {
   async getAllCategories(): Promise<Category[]> {
     return this.categoriesService.findAll();
   }
-  
+
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createCategory(@Req() req: RequestWithUser, @Body() category: CreateCategoryDto) {
+  async createCategory(
+    @Req() req: RequestWithUser,
+    @Body() category: CreateCategoryDto,
+  ) {
     return this.categoriesService.createCategory(category);
   }
 
@@ -28,7 +41,7 @@ export class CategoriesController {
   @Patch(':id')
   async updateCategory(
     @Param('id') id: string,
-    @Body() category: UpdateCategoryDto
+    @Body() category: UpdateCategoryDto,
   ) {
     return await this.categoriesService.updateCategory(id, category);
   }
