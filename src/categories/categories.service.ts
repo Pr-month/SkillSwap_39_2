@@ -17,6 +17,12 @@ export class CategoriesService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  async findAll(): Promise<Category[]> {
+    return this.categoryRepository.find({
+      where: { parent: IsNull() },
+      relations: ['children'],
+    });
+  
   async deleteCategory(categoryId: string, userId: string): Promise<void> {
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },

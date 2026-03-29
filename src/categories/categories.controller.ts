@@ -8,6 +8,11 @@ import { Category } from './entities/category.entity';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
+  @Get()
+  async getAllCategories(): Promise<Category[]> {
+    return this.categoriesService.findAll();
+  }
+  
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteCategory(
