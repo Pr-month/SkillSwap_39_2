@@ -1,5 +1,8 @@
 import { Controller, Delete, UseGuards, Param, Req, Post, Body } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
+import { RolesGuard } from 'src/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { UserRole } from 'src/users/users.enums';
 import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -19,7 +22,8 @@ export class CategoriesController {
     return this.categoriesService.createCategory(category);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([UserRole.ADMIN])
   @Delete(':id')
   async deleteCategory(
     @Param('id') id: string,
