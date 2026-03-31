@@ -27,8 +27,9 @@ export class CategoriesController {
   async getAllCategories(): Promise<Category[]> {
     return this.categoriesService.findAll();
   }
-
-  @UseGuards(JwtAuthGuard)
+  
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([UserRole.ADMIN])
   @Post()
   async createCategory(
     @Req() req: RequestWithUser,
