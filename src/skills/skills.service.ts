@@ -1,12 +1,16 @@
-import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { plainToInstance } from "class-transformer";
-import { Repository } from "typeorm";
-import { CreateSkillDto } from "./dto/create-skill.dto";
-import { PaginationQueryDto } from "./dto/pagination-query.dto";
-import { SkillDto } from "./dto/skills.dto";
-import { UpdateSkillDto } from "./dto/update-skill.dto";
-import { Skill } from "./entities/skill.entity";
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
+import { Repository } from 'typeorm';
+import { CreateSkillDto } from './dto/create-skill.dto';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { SkillDto } from './dto/skills.dto';
+import { UpdateSkillDto } from './dto/update-skill.dto';
+import { Skill } from './entities/skill.entity';
 
 @Injectable()
 export class SkillsService {
@@ -80,7 +84,7 @@ export class SkillsService {
     Object.assign(skill, updateSkillDto);
     return await this.skillsRepository.save(skill);
   }
-  
+
   async deleteSkill(skillId: string, userId: string): Promise<void> {
     const skill = await this.skillsRepository.findOne({
       where: { id: skillId },

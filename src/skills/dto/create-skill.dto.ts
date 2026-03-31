@@ -13,4 +13,3 @@ export class CreateSkillDto {
   @IsString({ each: true })
   images: string[];
 }
-

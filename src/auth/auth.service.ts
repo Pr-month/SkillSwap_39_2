@@ -15,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly configService: TJwtConfig,
-  ) { }
+  ) {}
 
   async registerUser(
     email: string,

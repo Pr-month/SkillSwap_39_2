@@ -19,11 +19,14 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     @Inject(appConfig.KEY)
-    private readonly appConfig: TAppConfig
-  ) { }
+    private readonly appConfig: TAppConfig,
+  ) {}
 
   async createUser(email: string, password: string): Promise<User> {
-    const hashedPassword: string = await bcrypt.hash(password, this.appConfig.hashSalt);
+    const hashedPassword: string = await bcrypt.hash(
+      password,
+      this.appConfig.hashSalt,
+    );
     const user: User = this.usersRepository.create({
       email,
       password: hashedPassword,
@@ -39,7 +42,10 @@ export class UsersService {
     userId: string,
     refreshToken: string,
   ): Promise<void> {
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, this.appConfig.hashSalt);
+    const hashedRefreshToken = await bcrypt.hash(
+      refreshToken,
+      this.appConfig.hashSalt,
+    );
     await this.usersRepository.update(userId, {
       refreshToken: hashedRefreshToken,
     });

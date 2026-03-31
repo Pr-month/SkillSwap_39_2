@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -22,8 +22,8 @@ export class FilesService {
 
     const filePath = file.path;
 
-    try {     
-      const uploadDir =  fileConfig.uploadPath;
+    try {
+      const uploadDir = fileConfig.uploadPath;
       if (!(await this.dirExists(uploadDir))) {
         await fs.mkdir(uploadDir, { recursive: true });
       }
