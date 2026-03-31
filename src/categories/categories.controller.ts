@@ -1,4 +1,14 @@
-import { Controller, Delete, UseGuards, Param, Req, Post, Body, Get } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  UseGuards,
+  Param,
+  Req,
+  Post,
+  Body,
+  Get,
+  Patch,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -7,6 +17,7 @@ import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { Category } from './entities/category.entity';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -20,8 +31,20 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles([UserRole.ADMIN])
   @Post()
-  async createCategory(@Req() req: RequestWithUser, @Body() category: CreateCategoryDto) {
+  async createCategory(
+    @Req() req: RequestWithUser,
+    @Body() category: CreateCategoryDto,
+  ) {
     return this.categoriesService.createCategory(category);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async updateCategory(
+    @Param('id') id: string,
+    @Body() category: UpdateCategoryDto,
+  ) {
+    return await this.categoriesService.updateCategory(id, category);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
