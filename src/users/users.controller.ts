@@ -19,18 +19,21 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get()
+  async getAllUsers(): Promise<User[]> {
+    return this.usersService.findAll();
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getMe(@Req() req: RequestWithUser): Promise<Omit<User, 'password'>> {
+  async getMe(@Req() req: RequestWithUser): Promise<User> {
     const user = await this.usersService.findById(req.user.sub);
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const { password, ...safeUser } = user;
-
-    return safeUser;
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -38,14 +41,11 @@ export class UsersController {
   async updateMe(
     @Req() req: RequestWithUser,
     @Body() dto: UpdateUserDto,
-  ): Promise<Omit<User, 'password'>> {
-    const user = await this.usersService.updateUser(req.user.sub, dto);
-
-    const { password, ...safeUser } = user;
-
-    return safeUser;
+  ): Promise<User> {
+    return this.usersService.updateUser(req.user.sub, dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('/me/password')
   updatePassword(
     @Req() req: RequestWithUser,

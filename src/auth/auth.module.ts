@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import type { StringValue } from 'ms';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
-import { TJwtConfig } from '../config/jwt.config';
+import { jwtConfig, TJwtConfig } from '../config/jwt.config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshJwtStrategy } from './strategies/jwt-refresh.strategy';
 
@@ -15,12 +14,9 @@ import { RefreshJwtStrategy } from './strategies/jwt-refresh.strategy';
     UsersModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: (config: ConfigService) => {
-        const jwt = config.get<TJwtConfig>('JWT_CONFIG');
-        if (!jwt?.access_token_key) {
-          throw new Error('ACCESS_TOKEN_KEY is not configured');
-        }
+      inject: [jwtConfig.KEY],
+      useFactory: (config: TJwtConfig) => {
+        const jwt = config;
         return {
           secret: jwt.access_token_key,
           signOptions: {
@@ -28,7 +24,6 @@ import { RefreshJwtStrategy } from './strategies/jwt-refresh.strategy';
           },
         };
       },
-      inject: [ConfigService],
     }),
     UsersModule,
   ],
