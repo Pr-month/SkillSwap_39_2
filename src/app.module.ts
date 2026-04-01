@@ -11,6 +11,7 @@ import { appConfig } from './config/app.config';
 import { SkillsModule } from './skills/skills.module';
 import { FilesModule } from './files/files.module';
 import { CategoriesModule } from './categories/categories.module';
+import { RequestsModule } from './requests/requests.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CategoriesModule } from './categories/categories.module';
     SkillsModule,
     FilesModule,
     CategoriesModule,
+    RequestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
