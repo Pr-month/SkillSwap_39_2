@@ -57,4 +57,11 @@ export class SkillsController {
 
     return { message: 'Skill deleted successfully' };
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/favorite')
+  async removeFavorite(@Param('id') id: string, @Req() req: RequestWithUser) {
+    await this.skillsService.removeFavoriteSkill(req.user.sub, id);
+    return { message: 'Skill removed from favorites' };
+  }
 }
