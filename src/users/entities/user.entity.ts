@@ -54,7 +54,6 @@ export class User {
   @ManyToMany(() => Category)
   @JoinTable()
   wantToLearn: Category[];
-}
 
   @ManyToMany(() => Skill)
   @JoinTable({
