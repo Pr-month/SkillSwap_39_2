@@ -12,12 +12,13 @@ import { SkillsModule } from './skills/skills.module';
 import { FilesModule } from './files/files.module';
 import { CategoriesModule } from './categories/categories.module';
 import { RequestsModule } from './requests/requests.module';
+import { swaggerConfig } from './config/swagger.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [dbConfig, jwtConfig, appConfig],
+      load: [dbConfig, jwtConfig, appConfig, swaggerConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [dbConfig.KEY],
