@@ -3,16 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Request } from './entities/request.entity';
 import { CreateRequestDto } from './dto/create-request.dto';
-import { User } from '../users/entities/user.entity';
 import { Skill } from '../skills/entities/skill.entity';
 
 @Injectable()
 export class RequestsService {
   constructor(
     @InjectRepository(Request)
-    private readonly requestsRepository: Repository<Request>,
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
+    private readonly requestsRepository: Repository<Request>,  
     @InjectRepository(Skill)
     private readonly skillsRepository: Repository<Skill>,
   ) {}
@@ -30,24 +27,30 @@ export class RequestsService {
   async createRequests(
     userId: string,
     dto: CreateRequestDto,
-  ): Promise<Request>  {
-    const [sender, offeredSkill, requestedSkill] = await Promise.all([
-      this.usersRepository.findOneBy({ id: userId }),
-      this.skillsRepository.findOneBy({ id: dto.offeredSkillId }),
-      this.skillsRepository.findOneBy({ id: dto.requestedSkillId }),
-    ]);
+  ): Promise<Request>{
+    const requestedSkill = await this.skillsRepository.findOne({
+      where: { id: dto.requestedSkillId },
+      relations: ['owner'],
+    });
 
-    if (!sender) throw new NotFoundException('Sender user not found');
-    if (!offeredSkill) throw new NotFoundException('Offered skill not found');
-    if (!requestedSkill) throw new NotFoundException('Requested skill not found');
+    if (!requestedSkill)
+      throw new NotFoundException('Requested requestedSkillId not found');
 
-     const request = this.requestsRepository.create({
-      sender,
+    const offeredSkill = await this.skillsRepository.findOneBy({
+      id: dto.offeredSkillId,
+    });
+    if (!offeredSkill)
+      throw new NotFoundException('Requested offeredSkillId not found');
+
+    const request = this.requestsRepository.create({
+      senderId: userId,
+      receiverId: requestedSkill.owner.id,
       offeredSkill,
       requestedSkill,
       isRead: false,
     });
 
     return this.requestsRepository.save(request);
-  }
+  } 
+
 }
