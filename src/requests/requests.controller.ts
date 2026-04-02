@@ -12,4 +12,10 @@ export class RequestsController {
   async getOutgoingRequests(@Req() req: RequestWithUser) {
     return await this.requestsService.getOutgoingRequests(req.user.sub);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('incoming')
+  async getIncomingRequests(@Req() req: RequestWithUser) {
+    return await this.requestsService.getIncomingRequests(req.user.sub);
+  }
 }

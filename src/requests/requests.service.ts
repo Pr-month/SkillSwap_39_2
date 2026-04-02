@@ -19,4 +19,14 @@ export class RequestsService {
       order: { createdAt: 'DESC' },
     });
   }
+
+  async getIncomingRequests(userId: string): Promise<Request[]> {
+    return await this.requestsRepository.find({
+      where: {
+        receiver: { id: userId },
+      },
+      relations: ['sender', 'offeredSkill', 'requestedSkill'],
+      order: { createdAt: 'DESC' },
+    });
+  }
 }
