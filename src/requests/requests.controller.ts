@@ -1,7 +1,7 @@
-import { Controller, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Delete, Param } from '@nestjs/common';
 import { RequestsService } from './requests.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
-import { RequestWithUser } from 'src/auth/types/request-with-user.interface';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
+import { RequestWithUser } from '../auth/types/request-with-user.interface';
 
 @Controller('requests')
 export class RequestsController {
@@ -11,5 +11,15 @@ export class RequestsController {
   @Get('outgoing')
   async getOutgoingRequests(@Req() req: RequestWithUser) {
     return await this.requestsService.getOutgoingRequests(req.user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async deleteRequest(
+    @Param('id') requestId: string,
+    @Req() req: RequestWithUser,
+  ) {
+    await this.requestsService.deleteRequest(requestId, req.user);
+    return { message: 'Request deleted successfully' };   
   }
 }
