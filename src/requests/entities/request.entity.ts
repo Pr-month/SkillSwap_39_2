@@ -20,8 +20,14 @@ export class Request {
   @ManyToOne(() => User)
   sender: User;
 
+  @Column()
+  senderId: string;
+
   @ManyToOne(() => User)
   receiver: User;
+    
+  @Column()
+  receiverId: string;
 
   @Column({
     type: 'enum',
