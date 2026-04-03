@@ -62,4 +62,14 @@ export class RequestsService {
     request.status = newStatus;
     return await this.requestsRepository.save(request);
   }
+  
+  async getIncomingRequests(userId: string): Promise<Request[]> {
+    return await this.requestsRepository.find({
+      where: {
+        receiver: { id: userId },
+      },
+      relations: ['sender', 'offeredSkill', 'requestedSkill'],
+      order: { createdAt: 'DESC' },
+    });
+  }
 }

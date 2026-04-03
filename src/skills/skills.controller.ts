@@ -37,6 +37,16 @@ export class SkillsController {
     return this.skillsService.create(dto, req.user.sub);
   }
 
+  @Post(':id/favorite')
+  @UseGuards(JwtAuthGuard)
+  async addFavorite(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ): Promise<{ message: string }> {
+    await this.skillsService.addFavoriteSkill(req.user.sub, id);
+    return { message: 'Skill added to favorites' };
+  }
+
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(

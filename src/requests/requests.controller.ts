@@ -25,4 +25,9 @@ export class RequestsController {
     return this.requestsService.updateStatus(requestId, req.user, dto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('incoming')
+  async getIncomingRequests(@Req() req: RequestWithUser) {
+    return await this.requestsService.getIncomingRequests(req.user.sub);
+  }
 }
