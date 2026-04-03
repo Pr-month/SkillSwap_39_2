@@ -1,4 +1,4 @@
-import { IsArray, IsString, Length } from 'class-validator';
+import { IsArray, IsString, IsUUID, Length } from 'class-validator';
 
 export class CreateSkillDto {
   @IsString()
@@ -12,4 +12,7 @@ export class CreateSkillDto {
   @IsArray()
   @IsString({ each: true })
   images: string[];
+
+  @IsUUID()
+  categoryId: string;
 }

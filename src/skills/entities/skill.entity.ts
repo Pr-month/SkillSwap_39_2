@@ -5,8 +5,10 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity('skills')
 export class Skill {
@@ -19,8 +21,9 @@ export class Skill {
   @Column({ type: 'text' })
   description: string;
 
-  @Column({ type: 'varchar', length: 100 })
-  category: string;
+  @ManyToOne(() => Category, { eager: true })
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
 
   @Column('text', { array: true, default: () => "'{}'" })
   images: string[];
