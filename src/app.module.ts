@@ -12,7 +12,6 @@ import { SkillsModule } from './skills/skills.module';
 import { FilesModule } from './files/files.module';
 import { CategoriesModule } from './categories/categories.module';
 import { RequestsModule } from './requests/requests.module';
-import { AdminSeed } from './seeds/admin.seed';
 
 @Module({
   imports: [
@@ -32,6 +31,6 @@ import { AdminSeed } from './seeds/admin.seed';
     RequestsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AdminSeed],
+  providers: [AppService],
 })
 export class AppModule {}
