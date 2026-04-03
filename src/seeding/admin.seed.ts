@@ -28,6 +28,7 @@ async function bootstrap() {
     } else {
       const admin = await usersService.createUser(email, password);
       admin.role = UserRole.ADMIN;
+      admin.name = 'Admin';
       await usersService.updateUser(admin.id, admin);
       console.log('Admin created successfully');
     }
