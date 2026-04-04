@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { City } from '../users/entities/city.entity';
+
 import { AppDataSource } from '../config/db.config';
+import { City } from '../cities/entities/city.entity';
 
 async function seedCities() {
   await AppDataSource.initialize();

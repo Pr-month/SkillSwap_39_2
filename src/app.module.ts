@@ -13,6 +13,7 @@ import { FilesModule } from './files/files.module';
 import { CategoriesModule } from './categories/categories.module';
 import { RequestsModule } from './requests/requests.module';
 import { swaggerConfig } from './config/swagger.config';
+import { CitiesModule } from './cities/cities.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { swaggerConfig } from './config/swagger.config';
     FilesModule,
     CategoriesModule,
     RequestsModule,
+    CitiesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
