@@ -1,8 +1,9 @@
-import { Controller, Get, UseGuards, Req, Patch, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Patch, Body, Param, Delete, Post } from '@nestjs/common';
 import { RequestsService } from './requests.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 import { RequestWithUser } from 'src/auth/types/request-with-user.interface';
 import { UpdateRequestStatusDto } from './dto/update-status.dto';
+import { CreateRequestDto } from './dto/create-request.dto';
 
 
 @Controller('requests')

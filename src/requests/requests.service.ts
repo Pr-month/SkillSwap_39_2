@@ -11,6 +11,8 @@ import { UpdateRequestStatusDto } from './dto/update-status.dto';
 import { RequestStatus } from './requests.enum';
 import { UserRole } from '../users/users.enums';
 import { AccessTokenPayload } from '../auth/auth.types';
+import { Skill } from '../skills/entities/skill.entity';
+import { CreateRequestDto } from './dto/create-request.dto';
 
 @Injectable()
 export class RequestsService {

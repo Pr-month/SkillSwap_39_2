@@ -32,9 +32,6 @@ export class Request {
   @Column()
   receiverId: string;
 
-  @Column()
-  receiverId: string;
-
   @Column({
     type: 'enum',
     enum: RequestStatus,
