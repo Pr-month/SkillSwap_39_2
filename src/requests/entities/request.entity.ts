@@ -5,6 +5,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  JoinColumn,
 } from 'typeorm';
 import { RequestStatus } from '../requests.enum';
 import { Skill } from 'src/skills/entities/skill.entity';
@@ -18,12 +19,14 @@ export class Request {
   createdAt: Date;
 
   @ManyToOne(() => User)
+  @JoinColumn({ name: 'senderId' })
   sender: User;
 
   @Column()
   senderId: string;
 
   @ManyToOne(() => User)
+  @JoinColumn({ name: 'receiverId' })
   receiver: User;
     
   @Column()
@@ -40,7 +43,7 @@ export class Request {
   offeredSkill: Skill;
 
   @ManyToOne(() => Skill)
-  requestedSkill: Skill;
+  requestedSkill: Skill;  
 
   @Column({ default: false })
   isRead: boolean;
