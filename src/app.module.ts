@@ -14,6 +14,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { RequestsModule } from './requests/requests.module';
 import { swaggerConfig } from './config/swagger.config';
 import { CitiesModule } from './cities/cities.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CitiesModule } from './cities/cities.module';
     CategoriesModule,
     RequestsModule,
     CitiesModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

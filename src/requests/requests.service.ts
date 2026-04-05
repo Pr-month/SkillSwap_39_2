@@ -10,12 +10,14 @@ import { UpdateRequestStatusDto } from './dto/update-status.dto';
 import { RequestStatus } from './requests.enum';
 import { UserRole } from '../users/users.enums';
 import { AccessTokenPayload } from '../auth/auth.types';
+import { NotificationsGateway } from 'src/notification/notification.gateway';
 
 @Injectable()
 export class RequestsService {
   constructor(
     @InjectRepository(Request)
     private readonly requestsRepository: Repository<Request>,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   async getOutgoingRequests(userId: string): Promise<Request[]> {
@@ -37,7 +39,7 @@ export class RequestsService {
       order: { createdAt: 'DESC' },
     });
   }
-  
+
   async updateStatus(
     requestId: string,
     user: AccessTokenPayload,
@@ -64,16 +66,24 @@ export class RequestsService {
     const isAdmin = user.role === UserRole.ADMIN;
     const isReceiver = request.receiverId === user.sub;
 
-
     if (!isAdmin && !isReceiver) {
       throw new ForbiddenException('У вас нет прав для обновления этой заявки');
     }
-   
+
     request.status = newStatus;
-    return await this.requestsRepository.save(request);
+    const savedRequest = await this.requestsRepository.save(request);
+
+    // Отправляем уведомление через WebSocket
+    this.notificationsGateway.sendToUser(request.senderId, {
+      type: 'request_status_updated',
+      requestId: savedRequest.id,
+      newStatus: savedRequest.status,
+    });
+
+    return savedRequest;
   }
-  
-   async deleteRequest(
+
+  async deleteRequest(
     requestId: string,
     user: AccessTokenPayload,
   ): Promise<void> {
