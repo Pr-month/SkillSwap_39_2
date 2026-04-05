@@ -28,6 +28,9 @@ export class Request {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'receiverId' })
   receiver: User;
+    
+  @Column()
+  receiverId: string;
 
   @Column()
   receiverId: string;
