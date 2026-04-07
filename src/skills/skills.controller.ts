@@ -37,6 +37,16 @@ export class SkillsController {
     return this.skillsService.create(dto, req.user.sub);
   }
 
+  @Post(':id/favorite')
+  @UseGuards(JwtAuthGuard)
+  async addFavorite(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ): Promise<{ message: string }> {
+    await this.skillsService.addFavoriteSkill(req.user.sub, id);
+    return { message: 'Skill added to favorites' };
+  }
+
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
@@ -56,5 +66,12 @@ export class SkillsController {
     await this.skillsService.deleteSkill(id, req.user.sub);
 
     return { message: 'Skill deleted successfully' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/favorite')
+  async removeFavorite(@Param('id') id: string, @Req() req: RequestWithUser) {
+    await this.skillsService.removeFavoriteSkill(req.user.sub, id);
+    return { message: 'Skill removed from favorites' };
   }
 }

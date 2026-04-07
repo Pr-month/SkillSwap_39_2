@@ -38,7 +38,8 @@ export class CategoriesController {
     return this.categoriesService.createCategory(category);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles([UserRole.ADMIN])
   @Patch(':id')
   async updateCategory(
     @Param('id') id: string,

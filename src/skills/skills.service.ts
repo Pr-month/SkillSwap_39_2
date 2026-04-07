@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
@@ -11,12 +12,16 @@ import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { SkillDto } from './dto/skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class SkillsService {
   constructor(
     @InjectRepository(Skill)
     private readonly skillsRepository: Repository<Skill>,
+
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
 
   async getSkillsWithPagination(paginationQuery: PaginationQueryDto): Promise<{
@@ -99,5 +104,55 @@ export class SkillsService {
     }
 
     await this.skillsRepository.delete(skillId);
+  }
+  async addFavoriteSkill(userId: string, skillId: string): Promise<void> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['favoriteSkills'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const skill = await this.skillsRepository.findOne({
+      where: { id: skillId },
+    });
+
+    if (!skill) {
+      throw new NotFoundException('Skill not found');
+    }
+
+    const favorites = user.favoriteSkills ?? [];
+
+    if (favorites.some((s) => s.id === skillId)) {
+      throw new ConflictException('Skill is already in favorites');
+    }
+
+    user.favoriteSkills = [...favorites, skill];
+    await this.usersRepository.save(user);
+  }
+
+  async removeFavoriteSkill(userId: string, skillId: string): Promise<void> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['favoriteSkills'],
+    });
+
+    if (!user || !user.favoriteSkills) {
+      throw new NotFoundException('User not found or has no favorite skills');
+    }
+
+    const skillIndex = user.favoriteSkills.findIndex(
+      (skill) => skill.id === skillId,
+    );
+
+    if (skillIndex === -1) {
+      throw new NotFoundException('Skill not found in your favorites');
+    }
+
+    user.favoriteSkills.splice(skillIndex, 1);
+
+    await this.usersRepository.save(user);
   }
 }
