@@ -75,7 +75,7 @@ export class RequestsService {
 
     // Отправляем уведомление через WebSocket
     this.notificationsGateway.sendToUser(request.senderId, {
-      type: 'request_status_updated',
+      type: 'request_updated',
       requestId: savedRequest.id,
       newStatus: savedRequest.status,
     });

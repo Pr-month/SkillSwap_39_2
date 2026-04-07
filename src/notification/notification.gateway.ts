@@ -5,40 +5,36 @@ import {
   OnGatewayDisconnect,  
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { UseGuards, Injectable } from '@nestjs/common';
-import { WsJwtGuard } from '../guards/ws-jwt.guard';
+import { Injectable } from '@nestjs/common';
 import { SocketWithUser } from './notification.types';
+import { WsJwtGuard } from 'src/guards/ws-jwt.guard';
+import {  NotificationPayloadDTO } from './dto/notification.dto';
+
 
 @Injectable()
 @WebSocketGateway({ cors: true })
-@UseGuards(WsJwtGuard)
 export class NotificationsGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   server: Server;
 
-  private users = new Map<string, string>(); 
+  constructor(private readonly wsJwtGuard: WsJwtGuard) {}
 
   handleConnection(client: SocketWithUser) {
-    const userId = client.user?.sub; 
-    if (userId) {
-      this.users.set(userId, client.id);
+    try {
+      const payload = this.wsJwtGuard.verifyClient(client);
+      client.user = payload;
+      client.join(payload.sub);
+    } catch {
+      client.disconnect(true);
     }
   }
 
-  handleDisconnect(client: Socket) {
-    for (const [userId, socketId] of this.users.entries()) {
-      if (socketId === client.id) {
-        this.users.delete(userId);
-      }
-    }
+  handleDisconnect(client: SocketWithUser) {
   }
 
-  sendToUser(userId: string, payload: unknown) {
-    const socketId = this.users.get(userId);
-    if (socketId) {
-      this.server.to(socketId).emit('notification', payload);
-    }
+  sendToUser(userId: string, payload: NotificationPayloadDTO) {
+    this.server.to(userId).emit('notification', payload);
   }
 }

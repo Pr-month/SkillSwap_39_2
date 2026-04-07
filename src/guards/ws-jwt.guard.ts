@@ -1,34 +1,29 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { verify } from 'jsonwebtoken';
+import { Injectable, Inject } from '@nestjs/common';
+import {  verify } from 'jsonwebtoken';
 import { jwtConfig, TJwtConfig } from 'src/config/jwt.config';
+import { SocketWithUser } from 'src/notification/notification.types';
+import { WsException } from '@nestjs/websockets';
+import { AccessTokenPayload } from 'src/auth/auth.types';
+
 
 @Injectable()
-export class WsJwtGuard implements CanActivate {
+export class WsJwtGuard {
   constructor(
     @Inject(jwtConfig.KEY)
-    private readonly configService: TJwtConfig,
+    private readonly config: TJwtConfig,
   ) {}
-  canActivate(context: ExecutionContext): boolean {
-    const client = context.switchToWs().getClient<any>();
 
-    const token = client.handshake.auth?.token;
-
-    if (!token) {
-      throw new UnauthorizedException('No token');
+  verifyClient(client: SocketWithUser) {
+    const token = client.handshake.headers.auth;
+    if (!token || Array.isArray(token)) {
+      throw new WsException('No token');
     }
 
     try {
-      const payload = verify(token, this.configService.access_token_key);
-      client.user = payload;
-      return true;
-    } catch (err) {
-      throw new UnauthorizedException('Invalid token');
+      const payload = verify(token, this.config.access_token_key) as AccessTokenPayload;
+      return payload;
+    } catch (e) {
+      throw new WsException('Invalid token');
     }
   }
 }
