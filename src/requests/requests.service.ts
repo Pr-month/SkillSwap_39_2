@@ -49,17 +49,19 @@ export class RequestsService {
     if (requestedSkill.owner.id === userId)
       throw new BadRequestException('Cannot send request to yourself');
 
-    const offeredSkill = await this.skillsRepository.findOne({   
+    const offeredSkill = await this.skillsRepository.findOne({
       where: { id: dto.offeredSkillId },
       relations: ['owner'],
     });
-    
+
     if (!offeredSkill)
       throw new NotFoundException('Requested offeredSkillId not found');
 
     //Отправленный навык пренадлежит отправителю,
     if (offeredSkill.owner?.id !== userId)
-      throw new BadRequestException('Offered skill does not belong to the sender');
+      throw new BadRequestException(
+        'Offered skill does not belong to the sender',
+      );
 
     const request = this.requestsRepository.create({
       senderId: userId,
@@ -70,7 +72,7 @@ export class RequestsService {
 
     return this.requestsRepository.save(request);
   }
-  
+
   async getIncomingRequests(userId: string): Promise<Request[]> {
     return await this.requestsRepository.find({
       where: {
@@ -80,7 +82,7 @@ export class RequestsService {
       order: { createdAt: 'DESC' },
     });
   }
-  
+
   async updateStatus(
     requestId: string,
     user: AccessTokenPayload,
@@ -107,16 +109,15 @@ export class RequestsService {
     const isAdmin = user.role === UserRole.ADMIN;
     const isReceiver = request.receiverId === user.sub;
 
-
     if (!isAdmin && !isReceiver) {
       throw new ForbiddenException('У вас нет прав для обновления этой заявки');
     }
-   
+
     request.status = newStatus;
     return await this.requestsRepository.save(request);
   }
-  
-   async deleteRequest(
+
+  async deleteRequest(
     requestId: string,
     user: AccessTokenPayload,
   ): Promise<void> {

@@ -28,7 +28,7 @@ export class Request {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'receiverId' })
   receiver: User;
-    
+
   @Column()
   receiverId: string;
 
@@ -43,7 +43,7 @@ export class Request {
   offeredSkill: Skill;
 
   @ManyToOne(() => Skill)
-  requestedSkill: Skill;  
+  requestedSkill: Skill;
 
   @Column({ default: false })
   isRead: boolean;

@@ -5,5 +5,5 @@ export class CreateRequestDto {
   requestedSkillId: string;
 
   @IsUUID()
-  offeredSkillId: string; 
+  offeredSkillId: string;
 }

@@ -27,14 +27,16 @@ export const SeedSkillData: SeedCreateSkill[] = [
   {
     title: 'Английский для путешествий',
     name: 'english-travel',
-    description: 'Разговорные шаблоны, аудирование, базовая грамматика и словарь для поездок.',
+    description:
+      'Разговорные шаблоны, аудирование, базовая грамматика и словарь для поездок.',
     categoryName: 'Английский язык',
     email: SeedUserData[2].email,
   },
   {
     title: 'Маркетинг и реклама: стратегия и креативы',
     name: 'marketing-ads-strategy',
-    description: 'Позиционирование, УТП, воронка, тест гипотез и разбор рекламных креативов.',
+    description:
+      'Позиционирование, УТП, воронка, тест гипотез и разбор рекламных креативов.',
     categoryName: 'Маркетинг и реклама',
     email: SeedUserData[3].email,
   },
