@@ -10,8 +10,8 @@ import {
   Post,
 } from '@nestjs/common';
 import { RequestsService } from './requests.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
-import { RequestWithUser } from 'src/auth/types/request-with-user.interface';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
+import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { UpdateRequestStatusDto } from './dto/update-status.dto';
 import { CreateRequestDto } from './dto/create-request.dto';
 import {
