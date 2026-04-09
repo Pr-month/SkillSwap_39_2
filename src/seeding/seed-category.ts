@@ -1,16 +1,16 @@
-import { Category } from "../categories/entities/category.entity";
-import { AppDataSource } from "../config/db.config";
-import { CategoriesData } from "./seed-category.data";
+import { Category } from '../categories/entities/category.entity';
+import { AppDataSource } from '../config/db.config';
+import { CategoriesData } from './seed-category.data';
 
 async function seedCategories() {
   await AppDataSource.initialize();
 
   AppDataSource.setOptions({
-    logging: false
+    logging: false,
   });
 
   const categoryRepository = AppDataSource.getRepository(Category);
-  
+
   const categoryCount = await categoryRepository.count();
   if (categoryCount > 0) {
     console.log('Categories already exist. Skipping seeding.');
@@ -31,11 +31,11 @@ async function seedCategories() {
           name: name,
           parent: { id: parent.id },
           parentId: parent.id,
-        })
+        }),
       );
       await categoryRepository.save(children);
     }
-  };
+  }
 
   console.log('Categories seeded successfully');
 }

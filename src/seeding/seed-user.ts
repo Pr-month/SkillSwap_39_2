@@ -34,7 +34,7 @@ async function seedUser() {
 
     usersToSave.push(user);
   }
-  
+
   await userRepository.save(usersToSave);
 
   console.log('User seeded successfully');

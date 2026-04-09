@@ -62,5 +62,4 @@ export class User {
     inverseJoinColumn: { name: 'skillId', referencedColumnName: 'id' },
   })
   favoriteSkills?: Skill[];
-
 }
