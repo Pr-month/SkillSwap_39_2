@@ -4,10 +4,12 @@ import {
   ApiConsumes,
   ApiOperation,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 
 export const ApiUploadFile = () => {
   return applyDecorators(
+    ApiTags('Files'),
     ApiOperation({ summary: 'Загрузить изображение' }),
     ApiConsumes('multipart/form-data'),
     ApiBody({
