@@ -1,5 +1,6 @@
 import { ConfigType, registerAs } from '@nestjs/config';
 import passport from 'passport';
+import { Gender } from 'src/users/users.enums';
 
 export const appConfig = registerAs('APP_CONFIG', () => ({
   port: Number(process.env.PORT) || 3000,
@@ -7,6 +8,11 @@ export const appConfig = registerAs('APP_CONFIG', () => ({
   adminData: {
     email: process.env.ADMIN_EMAIL || 'admin@mail.com',
     password: process.env.ADMIN_PASSWORD || 'admin123',
+    name: 'admin',
+    birthdate: '2000-01-01',
+    gender: Gender.MALE,
+    city: 'Ярославль',
+    about: ''
   },
 }));
 

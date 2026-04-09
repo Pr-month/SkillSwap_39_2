@@ -18,7 +18,7 @@ async function bootstrap() {
     return;
   }
 
-  const { email, password } = appConfig.adminData;
+  const { email } = appConfig.adminData;
 
   try {
     const existingAdmin = await usersService.findByEmail(email);
@@ -26,7 +26,7 @@ async function bootstrap() {
     if (existingAdmin) {
       console.log('Admin already exists. Skipping...');
     } else {
-      const admin = await usersService.createUser(email, password);
+      const admin = await usersService.createUser(appConfig.adminData);
       admin.role = UserRole.ADMIN;
       admin.name = 'Admin';
       await usersService.updateUser(admin.id, admin);
