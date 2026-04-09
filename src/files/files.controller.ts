@@ -8,6 +8,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import multerConfig from '../common/file';
 import { FilesService } from './files.service';
+import { ApiUploadFile } from './files.swagger';
 
 @Controller('upload')
 export class FilesController {
@@ -16,6 +17,7 @@ export class FilesController {
   // @UseGuards(JwtAuthGuard)
   @Post('')
   @UseInterceptors(FileInterceptor('file', multerConfig))
+  @ApiUploadFile()
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Файл не загружен');
