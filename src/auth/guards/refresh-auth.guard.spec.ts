@@ -1,5 +1,6 @@
 import { RefreshAuthGuard } from './refresh-auth.guard';
 import { ExecutionContext } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 describe('RefreshAuthGuard', () => {
   let guard: RefreshAuthGuard;
@@ -12,7 +13,31 @@ describe('RefreshAuthGuard', () => {
     expect(guard).toBeDefined();
   });
 
-  it('должен вызывать родительский метод canActivate', () => {
+  it('должен вернуть true, если JWT токен валиден (успешная активация)', async () => {
+    const context = {
+      switchToHttp: () => ({
+        getRequest: () => ({
+          headers: { authorization: 'Bearer valid-token' },
+        }),
+        getResponse: () => ({}),
+      }),
+      getHandler: () => ({}),
+      getClass: () => ({}),
+    } as unknown as ExecutionContext;
+
+    const superCanActivateSpy = jest
+      .spyOn(AuthGuard('jwt-refresh').prototype, 'canActivate')
+      .mockImplementation(() => true);
+
+    const result = await guard.canActivate(context);
+
+    expect(result).toBe(true);
+    expect(superCanActivateSpy).toHaveBeenCalled();
+
+    superCanActivateSpy.mockRestore();
+  });
+
+  it('должен вызвать родительский метод canActivate', () => {
     const context = {
       switchToHttp: () => ({
         getRequest: () => ({}),
@@ -24,7 +49,7 @@ describe('RefreshAuthGuard', () => {
 
     const canActivateSpy = jest
       .spyOn(RefreshAuthGuard.prototype, 'canActivate')
-      .mockReturnValue(true);
+      .mockImplementation(() => true);
 
     const result = guard.canActivate(context);
 
