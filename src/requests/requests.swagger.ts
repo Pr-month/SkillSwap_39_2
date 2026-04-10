@@ -9,95 +9,8 @@ import {
 } from '@nestjs/swagger';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestStatusDto } from './dto/update-status.dto';
-
-const ErrorResponseSchema = {
-  type: 'object',
-  properties: {
-    statusCode: { type: 'number' },
-    message: {
-      type: 'object',
-      properties: {
-        message: { type: 'string' },
-        statusCode: { type: 'number' },
-      },
-    },
-    timestamp: { type: 'string', format: 'date-time' },
-    path: { type: 'string' },
-  },
-};
-
-const CategorySchema = {
-  type: 'object',
-  properties: {
-    id: { type: 'string' },
-    name: { type: 'string' },
-  },
-};
-
-// Схема для сущности User
-const UserSchema = {
-  type: 'object',
-  properties: {
-    id: { type: 'string' },
-    name: { type: 'string' },
-    email: { type: 'string', format: 'email' },
-    about: { type: 'string', nullable: true },
-    birthdate: { type: 'string', format: 'date', nullable: true },
-    city: { type: 'string', nullable: true },
-    gender: {
-      type: 'string',
-      enum: ['male', 'female', 'other'],
-      nullable: true,
-    },
-    avatar: { type: 'string', nullable: true },
-    role: {
-      type: 'string',
-      enum: ['user', 'admin'],
-      default: 'user',
-    },
-  },
-};
-
-// Схема для сущности Skill
-const SkillSchema = {
-  type: 'object',
-  properties: {
-    id: { type: 'string' },
-    title: { type: 'string' },
-    description: { type: 'string' },
-    images: {
-      type: 'array',
-      items: { type: 'string' },
-      nullable: true,
-    },
-    name: { type: 'string' }, // исправлено: добавлен объект с type
-    userId: { type: 'string' },
-    createdAt: { type: 'string', format: 'date-time' },
-    updatedAt: { type: 'string', format: 'date-time' },
-    category: CategorySchema,
-  },
-};
-
-// Основная схема для Request
-const RequestSchema = {
-  type: 'object',
-  properties: {
-    id: { type: 'string' },
-    createdAt: { type: 'string', format: 'date-time' },
-    sender: UserSchema,
-    senderId: { type: 'string' },
-    receiver: UserSchema,
-    receiverId: { type: 'string' },
-    status: {
-      type: 'string',
-      enum: ['pending', 'accepted', 'rejected'],
-      default: 'pending',
-    },
-    offeredSkill: SkillSchema,
-    requestedSkill: SkillSchema,
-    isRead: { type: 'boolean', default: false },
-  },
-};
+import { ApiCommonErrors } from '../common/apiCommonErrors.swagger';
+import { RequestDto } from './dto/request.dto';
 
 export const ApiRequestOutgoing = () => {
   return applyDecorators(
@@ -110,16 +23,10 @@ export const ApiRequestOutgoing = () => {
     ApiResponse({
       status: 200,
       description: 'Успешный ответ',
-      schema: {
-        type: 'array',
-        items: RequestSchema,
-      },
+      type: RequestDto,
+      isArray: true,
     }),
-    ApiResponse({
-      status: 401,
-      description: 'Не авторизован',
-      schema: ErrorResponseSchema,
-    }),
+    ApiCommonErrors({ statuses: [401] }),
   );
 };
 
@@ -140,41 +47,9 @@ export const ApiRequestCreate = () => {
     ApiResponse({
       status: 201,
       description: 'Запрос создан успешно',
-      schema: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          createdAt: { type: 'string', format: 'date-time' },
-          senderId: { type: 'string' },
-          receiverId: { type: 'string' },
-          status: {
-            type: 'string',
-            enum: ['pending', 'accepted', 'rejected'],
-            default: 'pending',
-          },
-          offeredSkill: SkillSchema,
-          requestedSkill: SkillSchema,
-          isRead: { type: 'boolean', default: false },
-        },
-      },
+      type: RequestDto,
     }),
-    ApiResponse({
-      status: 400,
-      description:
-        'Неверные данные: отправка самому себе или предлагаемый навык не принадлежит отправителю',
-      schema: ErrorResponseSchema,
-    }),
-    ApiResponse({
-      status: 404,
-      description:
-        'Навык с указанным ID не найден (requestedSkillId или offeredSkillId)',
-      schema: ErrorResponseSchema,
-    }),
-    ApiResponse({
-      status: 401,
-      description: 'Не авторизован',
-      schema: ErrorResponseSchema,
-    }),
+    ApiCommonErrors({ statuses: [400, 401, 404] }),
   );
 };
 
@@ -202,16 +77,7 @@ export const ApiRequestDelete = () => {
         },
       },
     }),
-    ApiResponse({
-      status: 403,
-      description: 'Нет прав для удаления (не отправитель и не администратор)',
-      schema: ErrorResponseSchema,
-    }),
-    ApiResponse({
-      status: 404,
-      description: 'Заявка не найдена',
-      schema: ErrorResponseSchema,
-    }),
+    ApiCommonErrors({ statuses: [401, 403, 404] }),    
   );
 };
 
@@ -237,42 +103,9 @@ export const ApiRequestUpdateStatus = () => {
     ApiResponse({
       status: 200,
       description: 'Статус обновлён успешно',
-      schema: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          status: {
-            type: 'string',
-            enum: ['pending', 'accepted', 'rejected'],
-          },
-          createdAt: { type: 'string', format: 'date-time' },
-          senderId: { type: 'string' },
-          receiverId: { type: 'string' },
-          isRead: { type: 'boolean', default: false },
-        },
-      },
+      type: RequestDto,
     }),
-    ApiResponse({
-      status: 400,
-      description: 'Недопустимый статус (только "accepted"/"rejected")',
-      schema: ErrorResponseSchema,
-    }),
-    ApiResponse({
-      status: 403,
-      description:
-        'Нет прав для обновления (не получатель и не администратор) или статус нельзя изменить',
-      schema: ErrorResponseSchema,
-    }),
-    ApiResponse({
-      status: 404,
-      description: 'Заявка не найдена',
-      schema: ErrorResponseSchema,
-    }),
-    ApiResponse({
-      status: 401,
-      description: 'Не авторизован',
-      schema: ErrorResponseSchema,
-    }),
+    ApiCommonErrors({ statuses: [400, 401, 403, 404] }),        
   );
 };
 
@@ -286,15 +119,8 @@ export const ApiRequestIncoming = () => {
     ApiResponse({
       status: 200,
       description: 'Успешный ответ',
-      schema: {
-        type: 'array',
-        items: RequestSchema,
-      },
+      type: RequestDto,
     }),
-    ApiResponse({
-      status: 401,
-      description: 'Не авторизован',
-      schema: ErrorResponseSchema,
-    }),
+    ApiCommonErrors({ statuses: [401] }),       
   );
 };
