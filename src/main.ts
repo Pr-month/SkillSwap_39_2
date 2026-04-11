@@ -5,7 +5,7 @@ import { TAppConfig } from './config/app.config';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AllExceptionFilter } from './common/all-exception.filter';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { TSwaggerConfig } from './config/swagger.config';
 

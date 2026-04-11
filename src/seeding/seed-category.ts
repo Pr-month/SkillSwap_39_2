@@ -1,15 +1,9 @@
+import { DataSource } from 'typeorm';
 import { Category } from '../categories/entities/category.entity';
-import { AppDataSource } from '../config/db.config';
 import { CategoriesData } from './seed-category.data';
 
-async function seedCategories() {
-  await AppDataSource.initialize();
-
-  AppDataSource.setOptions({
-    logging: false,
-  });
-
-  const categoryRepository = AppDataSource.getRepository(Category);
+export async function seedCategories(dataSource: DataSource) {
+  const categoryRepository = dataSource.getRepository(Category);
 
   const categoryCount = await categoryRepository.count();
   if (categoryCount > 0) {
@@ -39,11 +33,3 @@ async function seedCategories() {
 
   console.log('Categories seeded successfully');
 }
-
-seedCategories()
-  .catch((error) => console.log('Error seeding category:', error))
-  .finally(() => {
-    if (AppDataSource.isInitialized) {
-      AppDataSource.destroy();
-    }
-  });

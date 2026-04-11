@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { AppDataSource } from '../config/db.config';
 import { City } from '../cities/entities/city.entity';
+import { DataSource } from 'typeorm';
 
 type CityData = {
   coords: {
@@ -15,17 +15,12 @@ type CityData = {
   subject: string;
 };
 
-async function seedCities() {
-  await AppDataSource.initialize();
-  await AppDataSource.synchronize(true);
-  console.log('Database connected.');
-
-  const cityRepository = AppDataSource.getRepository(City);
+export async function seedCities(dataSource: DataSource) {
+  const cityRepository = dataSource.getRepository(City);
 
   const count = await cityRepository.count();
   if (count > 0) {
-    console.log('Cities already exist.');
-    await AppDataSource.destroy();
+    console.log('Cities already exist. Skipping seeding.');
     return;
   }
 
@@ -50,7 +45,4 @@ async function seedCities() {
   }
 
   console.log('Success: Cities seeded!');
-  await AppDataSource.destroy();
 }
-
-seedCities().catch((err) => console.error('Error:', err));
