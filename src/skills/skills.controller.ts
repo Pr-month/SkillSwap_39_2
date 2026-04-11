@@ -74,4 +74,20 @@ export class SkillsController {
     await this.skillsService.removeFavoriteSkill(req.user.sub, id);
     return { message: 'Skill removed from favorites' };
   }
+
+  @Get(':id/similar')
+  async findSimilarSkills(
+    @Param('id') id: string,
+    @Query('limit') limit?: string,
+  ) {
+    const users = await this.skillsService.findSimilarUsersBySkill(
+      id,
+      limit ? Number(limit) : undefined,
+    );
+
+    return {
+      users: users,
+      count: users.length,
+    };
+  }
 }
