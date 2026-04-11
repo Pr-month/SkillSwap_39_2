@@ -4,8 +4,20 @@ import * as path from 'path';
 import { AppDataSource } from '../config/db.config';
 import { City } from '../cities/entities/city.entity';
 
+type CityData = {
+  coords: {
+    lat: string;
+    lon: string;
+  };
+  district: string;
+  name: string;
+  population: number;
+  subject: string;
+};
+
 async function seedCities() {
   await AppDataSource.initialize();
+  await AppDataSource.synchronize(true);
   console.log('Database connected.');
 
   const cityRepository = AppDataSource.getRepository(City);
@@ -19,11 +31,11 @@ async function seedCities() {
 
   const filePath = path.join(__dirname, 'russian-cities.json');
   const rawData = fs.readFileSync(filePath, 'utf8');
-  const citiesData = JSON.parse(rawData);
+  const citiesData: CityData[] = JSON.parse(rawData) as CityData[];
 
   console.log(`Seeding ${citiesData.length} cities.`);
 
-  const cities = citiesData.map((c: any) =>
+  const cities = citiesData.map((c: CityData) =>
     cityRepository.create({
       name: c.name,
       subject: c.subject,
