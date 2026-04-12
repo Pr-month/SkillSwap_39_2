@@ -10,8 +10,6 @@ import {
   Patch,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
-import { RolesGuard } from 'src/guards/roles.guard';
-import { Roles } from 'src/decorators/roles.decorator';
 import { UserRole } from 'src/users/users.enums';
 import { RequestWithUser } from '../auth/types/request-with-user.interface';
 import { CategoriesService } from './categories.service';
@@ -25,6 +23,8 @@ import {
   ApiCategoriesPatch,
   ApiCategoriesDelete,
 } from './categories.swagger';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @ApiCategoriesTag()
 @Controller('categories')

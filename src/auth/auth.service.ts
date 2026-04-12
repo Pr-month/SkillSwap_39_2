@@ -7,6 +7,7 @@ import { UsersService } from '../users/users.service';
 import type { AccessTokenPayload } from './auth.types';
 import { jwtConfig, type TJwtConfig } from '../config/jwt.config';
 import type { RefreshTokenPayload } from './auth.types';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,11 +18,10 @@ export class AuthService {
     private readonly configService: TJwtConfig,
   ) {}
 
-  async registerUser(
-    email: string,
-    password: string,
-  ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
-    const user = await this.usersService.createUser(email, password);
+  async registerUser(dto: RegisterDto): Promise<{
+    user: User; accessToken: string; refreshToken: string
+  }> {
+    const user = await this.usersService.createUser(dto);
     const { accessToken, refreshToken } = await this.generateTokens(user);
     await this.usersService.updateRefreshToken(user.id, refreshToken);
     return { user, accessToken, refreshToken };
@@ -65,7 +65,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    return this.generateTokens(user);
+    const { accessToken, refreshToken } = await this.generateTokens(user);
+    await this.usersService.updateRefreshToken(user.id, refreshToken);
+    return { accessToken, refreshToken }
   }
 
   async logout(userId: string): Promise<void> {

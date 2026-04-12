@@ -12,6 +12,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { appConfig, TAppConfig } from '../config/app.config';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 
 @Injectable()
 export class UsersService {
@@ -22,13 +23,13 @@ export class UsersService {
     private readonly appConfig: TAppConfig,
   ) {}
 
-  async createUser(email: string, password: string): Promise<User> {
+  async createUser(dto: RegisterDto): Promise<User> {
     const hashedPassword: string = await bcrypt.hash(
-      password,
+      dto.password,
       this.appConfig.hashSalt,
     );
     const user: User = this.usersRepository.create({
-      email,
+      ...dto,
       password: hashedPassword,
     });
     return this.usersRepository.save(user);
