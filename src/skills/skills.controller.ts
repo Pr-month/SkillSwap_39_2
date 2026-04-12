@@ -18,6 +18,7 @@ import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 import { SkillsService } from './skills.service';
+import { FindSimilarSkillsQueryDto } from './dto/find-similar-skills-query.dto';
 
 @Controller('skills')
 export class SkillsController {
@@ -78,11 +79,11 @@ export class SkillsController {
   @Get(':id/similar')
   async findSimilarSkills(
     @Param('id') id: string,
-    @Query('limit') limit?: string,
+    @Query() query: FindSimilarSkillsQueryDto,
   ) {
     const users = await this.skillsService.findSimilarUsersBySkill(
       id,
-      limit ? Number(limit) : undefined,
+      query.limit,
     );
 
     return {

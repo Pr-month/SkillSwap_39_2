@@ -13,6 +13,7 @@ import { SkillDto } from './dto/skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 import { User } from '../users/entities/user.entity';
+import { FindSimilarSkillsQueryDto } from './dto/find-similar-skills-query.dto';
 
 @Injectable()
 export class SkillsService {
@@ -158,7 +159,7 @@ export class SkillsService {
 
   async findSimilarUsersBySkill(
     skillId: string,
-    limit: number = 10,
+    limit: number,
   ): Promise<User[]> {
     const currentSkill = await this.skillsRepository.findOne({
       where: { id: skillId },
@@ -173,8 +174,6 @@ export class SkillsService {
       throw new NotFoundException('У навыка нет категории');
     }
 
-    const safeLimit = Math.min(50, Math.max(1, limit));
-
     const users = await this.usersRepository
       .createQueryBuilder('user')
       .innerJoin('user.skills', 'skill')
@@ -185,7 +184,7 @@ export class SkillsService {
         currentUserId: currentSkill.owner.id,
       })
       .distinct(true)
-      .limit(safeLimit)
+      .limit(limit)
       .getMany();
 
     return users;
