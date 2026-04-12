@@ -26,10 +26,19 @@ async function bootstrap() {
     if (existingAdmin) {
       console.log('Admin already exists. Skipping...');
     } else {
-      const admin = await usersService.createUser(appConfig.adminData);
+      const adminData = appConfig.adminData;
+
+      const { city, ...restAdminData } = adminData;
+
+      const admin = await usersService.createUser({
+        ...restAdminData,
+        cityId: city,
+      });
+
       admin.role = UserRole.ADMIN;
       admin.name = 'Admin';
-      await usersService.updateUser(admin.id, admin);
+
+      await usersService.updateUser(admin.id, { name: 'Admin' });
       console.log('Admin created successfully');
     }
   } catch (error) {
