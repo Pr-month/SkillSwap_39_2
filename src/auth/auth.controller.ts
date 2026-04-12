@@ -13,7 +13,12 @@ import { RequestWithUser } from './types/request-with-user.interface';
 import { User } from 'src/users/entities/user.entity';
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
 import { IRequestWithUser } from './types/express';
-import { ApiAuthLogin, ApiAuthLogout, ApiAuthRefresh, ApiAuthRegister } from './auth.swagger';
+import {
+  ApiAuthLogin,
+  ApiAuthLogout,
+  ApiAuthRefresh,
+  ApiAuthRegister,
+} from './auth.swagger';
 import { JwtAuthGuard } from './guards/jwtAuth.guard';
 
 @Controller('auth')
