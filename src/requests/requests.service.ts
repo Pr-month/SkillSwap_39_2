@@ -11,6 +11,7 @@ import { UpdateRequestStatusDto } from './dto/update-status.dto';
 import { RequestStatus } from './requests.enum';
 import { UserRole } from '../users/users.enums';
 import { AccessTokenPayload } from '../auth/auth.types';
+import { NotificationsGateway } from 'src/notification/notification.gateway';
 import { Skill } from '../skills/entities/skill.entity';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { RequestDto } from './dto/request.dto';
@@ -20,6 +21,7 @@ export class RequestsService {
   constructor(
     @InjectRepository(Request)
     private readonly requestsRepository: Repository<Request>,
+    private readonly notificationsGateway: NotificationsGateway,
     @InjectRepository(Skill)
     private readonly skillsRepository: Repository<Skill>,
   ) {}
@@ -159,8 +161,16 @@ export class RequestsService {
     }
 
     request.status = newStatus;
-    const updatedRequest = await this.requestsRepository.save(request);
-    return this.toRequestDto(updatedRequest);
+    const savedRequest = await this.requestsRepository.save(request);
+
+    // Отправляем уведомление через WebSocket
+    this.notificationsGateway.sendToUser(request.senderId, {
+      type: 'request_updated',
+      requestId: savedRequest.id,
+      newStatus: savedRequest.status,
+    });
+
+    return this.toRequestDto(savedRequest);
   }
 
   async deleteRequest(
