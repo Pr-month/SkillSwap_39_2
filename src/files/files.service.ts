@@ -46,6 +46,7 @@ export class FilesService {
       };
     } catch (error) {
       // Если произошла ошибка, удаляем временный файл
+      console.log(`Saving file error: ${error}`);
       await fs.unlink(filePath).catch(() => {});
       throw new BadRequestException('Ошибка при сохранении файла');
     }

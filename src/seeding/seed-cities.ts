@@ -1,29 +1,36 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { AppDataSource } from '../config/db.config';
 import { City } from '../cities/entities/city.entity';
+import { DataSource } from 'typeorm';
 
-async function seedCities() {
-  await AppDataSource.initialize();
-  console.log('Database connected.');
+type CityData = {
+  coords: {
+    lat: string;
+    lon: string;
+  };
+  district: string;
+  name: string;
+  population: number;
+  subject: string;
+};
 
-  const cityRepository = AppDataSource.getRepository(City);
+export async function seedCities(dataSource: DataSource) {
+  const cityRepository = dataSource.getRepository(City);
 
   const count = await cityRepository.count();
   if (count > 0) {
-    console.log('Cities already exist.');
-    await AppDataSource.destroy();
+    console.log('Cities already exist. Skipping seeding.');
     return;
   }
 
   const filePath = path.join(__dirname, 'russian-cities.json');
   const rawData = fs.readFileSync(filePath, 'utf8');
-  const citiesData = JSON.parse(rawData);
+  const citiesData: CityData[] = JSON.parse(rawData) as CityData[];
 
   console.log(`Seeding ${citiesData.length} cities.`);
 
-  const cities = citiesData.map((c: any) =>
+  const cities = citiesData.map((c: CityData) =>
     cityRepository.create({
       name: c.name,
       subject: c.subject,
@@ -38,7 +45,4 @@ async function seedCities() {
   }
 
   console.log('Success: Cities seeded!');
-  await AppDataSource.destroy();
 }
-
-seedCities().catch((err) => console.error('Error:', err));

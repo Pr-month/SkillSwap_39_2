@@ -23,6 +23,7 @@ export class WsJwtGuard {
       const payload = verify(token, this.config.access_token_key) as AccessTokenPayload;
       return payload;
     } catch (e) {
+      console.log(`invalid token error: ${e}`);
       throw new WsException('Invalid token');
     }
   }

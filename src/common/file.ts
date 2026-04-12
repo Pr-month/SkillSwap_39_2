@@ -54,7 +54,7 @@ const fileFilter = async (
   file: Express.Multer.File,
   cb: FileFilterCallback,
 ) => {
-  const mimeType = file.mimetype.toLowerCase();
+  // const mimeType = file.mimetype.toLowerCase();
 
   if (!types.includes(file.mimetype)) {
     return cb(null, false);
