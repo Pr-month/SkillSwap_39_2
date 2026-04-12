@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { appConfig, TAppConfig } from '../config/app.config';
 import { RegisterDto } from 'src/auth/dto/register.dto';
+import { City } from 'src/cities/entities/city.entity';
 
 @Injectable()
 export class UsersService {
@@ -62,12 +63,14 @@ export class UsersService {
 
   async updateUser(userId: string, dto: UpdateUserDto): Promise<User> {
     const user = await this.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+    const { cityId, ...updateData } = dto;
+    Object.assign(user, updateData);
+
+    if (cityId) {
+      user.city = { id: cityId } as City;
     }
-
-    Object.assign(user, dto);
 
     return this.usersRepository.save(user);
   }
