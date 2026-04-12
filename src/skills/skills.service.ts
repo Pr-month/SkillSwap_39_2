@@ -13,7 +13,6 @@ import { SkillDto } from './dto/skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 import { User } from '../users/entities/user.entity';
-import { FindSimilarSkillsQueryDto } from './dto/find-similar-skills-query.dto';
 
 @Injectable()
 export class SkillsService {

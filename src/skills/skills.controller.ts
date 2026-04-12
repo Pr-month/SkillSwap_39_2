@@ -18,7 +18,8 @@ import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 import { SkillsService } from './skills.service';
-import { FindSimilarSkillsQueryDto } from './dto/find-similar-skills-query.dto';
+import { FindSimilarSkillsQueryDto } from './dto/similar-skills-query.dto';
+import { ApiFindSimilarSkills } from './skills.swagger';
 
 @Controller('skills')
 export class SkillsController {
@@ -77,6 +78,7 @@ export class SkillsController {
   }
 
   @Get(':id/similar')
+  @ApiFindSimilarSkills()
   async findSimilarSkills(
     @Param('id') id: string,
     @Query() query: FindSimilarSkillsQueryDto,
