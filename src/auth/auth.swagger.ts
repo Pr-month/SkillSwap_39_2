@@ -1,7 +1,13 @@
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { applyDecorators } from "@nestjs/common";
-import { LoginDto } from "./dto/login.dto";
-import { RegisterDto } from "./dto/register.dto";
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { applyDecorators } from '@nestjs/common';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 export function ApiAuthLogin() {
   return applyDecorators(
@@ -10,21 +16,21 @@ export function ApiAuthLogin() {
     ApiBody({ type: LoginDto }),
     ApiResponse({
       status: 201,
-      description: 'Пользователь успешно авторизован'
+      description: 'Пользователь успешно авторизован',
     }),
     ApiResponse({
       status: 401,
-      description: 'Некорректная почта или пароль'
+      description: 'Некорректная почта или пароль',
     }),
     ApiResponse({
       status: 400,
-      description: 'Ошибка валидации'
+      description: 'Ошибка валидации',
     }),
     ApiResponse({
       status: 500,
-      description: 'Внутренняя ошибка сервера'
-    })
-  )
+      description: 'Внутренняя ошибка сервера',
+    }),
+  );
 }
 
 export function ApiAuthRegister() {
@@ -34,21 +40,21 @@ export function ApiAuthRegister() {
     ApiBody({ type: RegisterDto }),
     ApiResponse({
       status: 201,
-      description: 'Пользователь успешно зарегистрирован'
+      description: 'Пользователь успешно зарегистрирован',
     }),
     ApiResponse({
       status: 409,
-      description: 'Пользователь уже зарегистрирован'
+      description: 'Пользователь уже зарегистрирован',
     }),
     ApiResponse({
       status: 400,
-      description: 'Ошибка валидации'
+      description: 'Ошибка валидации',
     }),
     ApiResponse({
       status: 500,
-      description: 'Внутренняя ошибка сервера'
-    })
-  )
+      description: 'Внутренняя ошибка сервера',
+    }),
+  );
 }
 
 export function ApiAuthRefresh() {
@@ -58,17 +64,17 @@ export function ApiAuthRefresh() {
     ApiBearerAuth(),
     ApiResponse({
       status: 200,
-      description: 'Данные авторизации успешно обновлены'
+      description: 'Данные авторизации успешно обновлены',
     }),
     ApiResponse({
       status: 401,
-      description: 'Некорректный accessToken или refreshToken'
+      description: 'Некорректный accessToken или refreshToken',
     }),
     ApiResponse({
       status: 500,
-      description: 'Внутренняя ошибка сервера'
-    })
-  )
+      description: 'Внутренняя ошибка сервера',
+    }),
+  );
 }
 
 export function ApiAuthLogout() {
@@ -78,15 +84,15 @@ export function ApiAuthLogout() {
     ApiBearerAuth(),
     ApiResponse({
       status: 200,
-      description: 'Выход из профиля выполнен'
+      description: 'Выход из профиля выполнен',
     }),
     ApiResponse({
       status: 401,
-      description: 'Пользователь не авторизован'
+      description: 'Пользователь не авторизован',
     }),
     ApiResponse({
       status: 500,
-      description: 'Внутренняя ошибка сервера'
-    })
-  )
+      description: 'Внутренняя ошибка сервера',
+    }),
+  );
 }

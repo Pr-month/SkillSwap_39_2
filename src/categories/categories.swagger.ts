@@ -13,7 +13,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CategoryResponseDto } from './dto/category-response.dto';
-import { ErrorResponseDto } from '../common/swagger/error-response.dto';
+import { ErrorResponseDto } from '../common/dto/error-response.dto';
 
 export function ApiCategoriesTag() {
   return applyDecorators(ApiTags('Categories'));
