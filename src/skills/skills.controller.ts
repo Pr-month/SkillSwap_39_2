@@ -23,11 +23,11 @@ import {
   ApiCreateSkill,
   ApiDeleteSkill,
   ApiFindAllSkills,
+  ApiFindSimilarSkills,
   ApiRemoveFavoriteSkill,
   ApiUpdateSkill,
 } from './skills.swagger';
 import { FindSimilarSkillsQueryDto } from './dto/similar-skills-query.dto';
-import { ApiFindSimilarSkills } from './skills.swagger';
 
 @Controller('skills')
 export class SkillsController {
