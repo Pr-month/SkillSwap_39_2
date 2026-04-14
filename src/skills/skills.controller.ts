@@ -18,6 +18,8 @@ import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 import { SkillsService } from './skills.service';
+import { FindSimilarSkillsQueryDto } from './dto/similar-skills-query.dto';
+import { ApiFindSimilarSkills } from './skills.swagger';
 
 @Controller('skills')
 export class SkillsController {
@@ -73,5 +75,22 @@ export class SkillsController {
   async removeFavorite(@Param('id') id: string, @Req() req: RequestWithUser) {
     await this.skillsService.removeFavoriteSkill(req.user.sub, id);
     return { message: 'Skill removed from favorites' };
+  }
+
+  @Get(':id/similar')
+  @ApiFindSimilarSkills()
+  async findSimilarSkills(
+    @Param('id') id: string,
+    @Query() query: FindSimilarSkillsQueryDto,
+  ) {
+    const users = await this.skillsService.findSimilarUsersBySkill(
+      id,
+      query.limit,
+    );
+
+    return {
+      users: users,
+      count: users.length,
+    };
   }
 }
