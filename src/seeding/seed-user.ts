@@ -1,17 +1,17 @@
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
-import { AppDataSource } from '../config/db.config';
 import { SeedUserData } from './seed-user.data';
 import { appConfig, TAppConfig } from '../config/app.config';
+import { DataSource } from 'typeorm';
 
-async function seedUser() {
-  await AppDataSource.initialize();
+export async function seedUser(dataSource: DataSource) {
+  const userRepository = dataSource.getRepository(User);
 
-  AppDataSource.setOptions({
-    logging: false,
-  });
-
-  const userRepository = AppDataSource.getRepository(User);
+  const userCount = await userRepository.count();
+  if (userCount > 0) {
+    console.log('Users already exist. Skipping seeding.');
+    return;
+  }
 
   const appConfigInstance: TAppConfig = appConfig();
   const saltRounds: number = appConfigInstance.hashSalt;
@@ -39,11 +39,3 @@ async function seedUser() {
 
   console.log('User seeded successfully');
 }
-
-seedUser()
-  .catch((error) => console.log('Error seeding user:', error))
-  .finally(() => {
-    if (AppDataSource.isInitialized) {
-      AppDataSource.destroy();
-    }
-  });

@@ -5,18 +5,21 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { UserRole, Gender } from '../users.enums';
 import { Exclude } from 'class-transformer';
 import { Skill } from '../../skills/entities/skill.entity';
-import { Category } from 'src/categories/entities/category.entity';
+import { Category } from '../../categories/entities/category.entity';
+import { City } from '../../cities/entities/city.entity';
 
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 100 })
   name: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
@@ -32,8 +35,9 @@ export class User {
   @Column({ type: 'date', nullable: true })
   birthdate?: Date;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  city?: string;
+  @ManyToOne(() => City)
+  @JoinColumn({ name: 'cityId' })
+  city?: City;
 
   @Column({ type: 'enum', enum: Gender, nullable: true })
   gender?: Gender;

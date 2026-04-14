@@ -11,32 +11,76 @@ import { UpdateRequestStatusDto } from './dto/update-status.dto';
 import { RequestStatus } from './requests.enum';
 import { UserRole } from '../users/users.enums';
 import { AccessTokenPayload } from '../auth/auth.types';
+import { NotificationsGateway } from 'src/notification/notification.gateway';
 import { Skill } from '../skills/entities/skill.entity';
 import { CreateRequestDto } from './dto/create-request.dto';
+import { RequestDto } from './dto/request.dto';
 
 @Injectable()
 export class RequestsService {
   constructor(
     @InjectRepository(Request)
     private readonly requestsRepository: Repository<Request>,
+    private readonly notificationsGateway: NotificationsGateway,
     @InjectRepository(Skill)
     private readonly skillsRepository: Repository<Skill>,
   ) {}
 
-  async getOutgoingRequests(userId: string): Promise<Request[]> {
-    return await this.requestsRepository.find({
+  private toRequestDto(request: Request): RequestDto {
+    return {
+      id: request.id,
+      createdAt: request.createdAt,
+      senderId: request.senderId,
+      sender: request.sender
+        ? {
+            id: request.sender.id,
+            name: request.sender.name,
+            email: request.sender.email,
+          }
+        : null,
+      receiverId: request.receiverId,
+      receiver: request.receiver
+        ? {
+            id: request.receiver.id,
+            name: request.receiver.name,
+            email: request.receiver.email,
+          }
+        : null,
+      status: request.status,
+      isRead: request.isRead,
+      offeredSkill: request.offeredSkill
+        ? {
+            id: request.offeredSkill.id,
+            title: request.offeredSkill.name,
+            category: request.offeredSkill.category?.name || '',
+          }
+        : null,
+      requestedSkill: request.requestedSkill
+        ? {
+            id: request.requestedSkill.id,
+            title: request.requestedSkill.name,
+            category: request.requestedSkill.category?.name || '',
+          }
+        : null,
+    };
+  }
+
+  async getOutgoingRequests(userId: string): Promise<RequestDto[]> {
+    const requests = await this.requestsRepository.find({
       where: {
         sender: { id: userId },
       },
       relations: ['receiver', 'offeredSkill', 'requestedSkill'],
       order: { createdAt: 'DESC' },
     });
+
+    return requests.map((request) => this.toRequestDto(request));
   }
 
   async createRequests(
     userId: string,
     dto: CreateRequestDto,
-  ): Promise<Request> {
+  ): Promise<RequestDto> {
     const requestedSkill = await this.skillsRepository.findOne({
       where: { id: dto.requestedSkillId },
       relations: ['owner'],
@@ -70,24 +114,27 @@ export class RequestsService {
       requestedSkill,
     });
 
-    return this.requestsRepository.save(request);
+    const savedRequest = await this.requestsRepository.save(request);
+    return this.toRequestDto(savedRequest);
   }
 
-  async getIncomingRequests(userId: string): Promise<Request[]> {
-    return await this.requestsRepository.find({
+  async getIncomingRequests(userId: string): Promise<RequestDto[]> {
+    const requests = await this.requestsRepository.find({
       where: {
         receiver: { id: userId },
       },
       relations: ['sender', 'offeredSkill', 'requestedSkill'],
       order: { createdAt: 'DESC' },
     });
+
+    return requests.map((request) => this.toRequestDto(request));
   }
 
   async updateStatus(
     requestId: string,
     user: AccessTokenPayload,
     dto: UpdateRequestStatusDto,
-  ): Promise<Request> {
+  ): Promise<RequestDto> {
     const newStatus: RequestStatus = dto.status;
 
     // Проверяем, что новый статус разрешён (принять или отклонить)
@@ -114,7 +161,16 @@ export class RequestsService {
     }
 
     request.status = newStatus;
-    return await this.requestsRepository.save(request);
+    const savedRequest = await this.requestsRepository.save(request);
+
+    // Отправляем уведомление через WebSocket
+    this.notificationsGateway.sendToUser(request.senderId, {
+      type: 'request_updated',
+      requestId: savedRequest.id,
+      newStatus: savedRequest.status,
+    });
+
+    return this.toRequestDto(savedRequest);
   }
 
   async deleteRequest(
