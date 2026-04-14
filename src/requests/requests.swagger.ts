@@ -77,7 +77,7 @@ export const ApiRequestDelete = () => {
         },
       },
     }),
-    ApiCommonErrors({ statuses: [401, 403, 404] }),    
+    ApiCommonErrors({ statuses: [401, 403, 404] }),
   );
 };
 
@@ -105,7 +105,7 @@ export const ApiRequestUpdateStatus = () => {
       description: 'Статус обновлён успешно',
       type: RequestDto,
     }),
-    ApiCommonErrors({ statuses: [400, 401, 403, 404] }),        
+    ApiCommonErrors({ statuses: [400, 401, 403, 404] }),
   );
 };
 
@@ -121,6 +121,6 @@ export const ApiRequestIncoming = () => {
       description: 'Успешный ответ',
       type: RequestDto,
     }),
-    ApiCommonErrors({ statuses: [401] }),       
+    ApiCommonErrors({ statuses: [401] }),
   );
 };

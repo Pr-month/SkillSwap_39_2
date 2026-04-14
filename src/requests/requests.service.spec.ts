@@ -4,7 +4,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Request } from './entities/request.entity';
 import { Skill } from '../skills/entities/skill.entity';
 import type { Repository } from 'typeorm';
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { RequestStatus } from './requests.enum';
 import { UserRole } from '../users/users.enums';
 
@@ -224,7 +228,10 @@ describe('RequestsService', () => {
         status: RequestStatus.PENDING,
       } as any;
       requestsRepository.findOne.mockResolvedValue(req);
-      requestsRepository.save.mockResolvedValue({ ...req, status: RequestStatus.ACCEPTED });
+      requestsRepository.save.mockResolvedValue({
+        ...req,
+        status: RequestStatus.ACCEPTED,
+      });
 
       await expect(
         service.updateStatus(
@@ -243,7 +250,10 @@ describe('RequestsService', () => {
         status: RequestStatus.PENDING,
       } as any;
       requestsRepository.findOne.mockResolvedValue(req);
-      requestsRepository.save.mockResolvedValue({ ...req, status: RequestStatus.REJECTED });
+      requestsRepository.save.mockResolvedValue({
+        ...req,
+        status: RequestStatus.REJECTED,
+      });
 
       await expect(
         service.updateStatus(

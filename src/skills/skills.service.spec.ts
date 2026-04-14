@@ -59,13 +59,17 @@ describe('SkillsService', () => {
 
   describe('getSkillsWithPagination', () => {
     it('returns data with computed totalPages', async () => {
-      skillsRepository.findAndCount.mockResolvedValue([[{ id: 's1' } as any], 11]);
+      skillsRepository.findAndCount.mockResolvedValue([
+        [{ id: 's1' } as any],
+        11,
+      ]);
 
-      await expect(service.getSkillsWithPagination({ page: 1, limit: 5 } as any))
-        .resolves.toMatchObject({
-          page: 1,
-          totalPages: 3,
-        });
+      await expect(
+        service.getSkillsWithPagination({ page: 1, limit: 5 } as any),
+      ).resolves.toMatchObject({
+        page: 1,
+        totalPages: 3,
+      });
 
       expect(skillsRepository.findAndCount).toHaveBeenCalledWith({
         take: 5,
@@ -117,16 +121,19 @@ describe('SkillsService', () => {
   describe('update', () => {
     it('throws 404 if skill not found', async () => {
       skillsRepository.findOne.mockResolvedValue(null);
-      await expect(service.update('s1', 'u1', { name: 'x' } as any)).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.update('s1', 'u1', { name: 'x' } as any),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('throws 403 if trying to update чужой skill', async () => {
-      skillsRepository.findOne.mockResolvedValue({ id: 's1', userId: 'u2' } as any);
-      await expect(service.update('s1', 'u1', { name: 'x' } as any)).rejects.toBeInstanceOf(
-        ForbiddenException,
-      );
+      skillsRepository.findOne.mockResolvedValue({
+        id: 's1',
+        userId: 'u2',
+      } as any);
+      await expect(
+        service.update('s1', 'u1', { name: 'x' } as any),
+      ).rejects.toBeInstanceOf(ForbiddenException);
     });
 
     it('saves updated skill when owner matches', async () => {
@@ -134,7 +141,9 @@ describe('SkillsService', () => {
       skillsRepository.findOne.mockResolvedValue(skill);
       skillsRepository.save.mockResolvedValue({ ...skill, name: 'new' });
 
-      await expect(service.update('s1', 'u1', { name: 'new' } as any)).resolves.toMatchObject({
+      await expect(
+        service.update('s1', 'u1', { name: 'new' } as any),
+      ).resolves.toMatchObject({
         name: 'new',
       });
     });
@@ -143,16 +152,26 @@ describe('SkillsService', () => {
   describe('deleteSkill', () => {
     it('throws 404 if not found', async () => {
       skillsRepository.findOne.mockResolvedValue(null);
-      await expect(service.deleteSkill('s1', 'u1')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.deleteSkill('s1', 'u1')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
 
     it('throws 403 if not owner', async () => {
-      skillsRepository.findOne.mockResolvedValue({ id: 's1', userId: 'u2' } as any);
-      await expect(service.deleteSkill('s1', 'u1')).rejects.toBeInstanceOf(ForbiddenException);
+      skillsRepository.findOne.mockResolvedValue({
+        id: 's1',
+        userId: 'u2',
+      } as any);
+      await expect(service.deleteSkill('s1', 'u1')).rejects.toBeInstanceOf(
+        ForbiddenException,
+      );
     });
 
     it('deletes when owner', async () => {
-      skillsRepository.findOne.mockResolvedValue({ id: 's1', userId: 'u1' } as any);
+      skillsRepository.findOne.mockResolvedValue({
+        id: 's1',
+        userId: 'u1',
+      } as any);
       skillsRepository.delete.mockResolvedValue({ affected: 1 } as any);
 
       await expect(service.deleteSkill('s1', 'u1')).resolves.toBeUndefined();
@@ -163,13 +182,20 @@ describe('SkillsService', () => {
   describe('addFavoriteSkill', () => {
     it('throws 404 if user not found', async () => {
       usersRepository.findOne.mockResolvedValue(null);
-      await expect(service.addFavoriteSkill('u1', 's1')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.addFavoriteSkill('u1', 's1')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
 
     it('throws 404 if skill not found', async () => {
-      usersRepository.findOne.mockResolvedValue({ id: 'u1', favoriteSkills: [] } as any);
+      usersRepository.findOne.mockResolvedValue({
+        id: 'u1',
+        favoriteSkills: [],
+      } as any);
       skillsRepository.findOne.mockResolvedValue(null);
-      await expect(service.addFavoriteSkill('u1', 's1')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.addFavoriteSkill('u1', 's1')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
 
     it('throws 409 if already in favorites', async () => {
@@ -179,7 +205,9 @@ describe('SkillsService', () => {
       } as any);
       skillsRepository.findOne.mockResolvedValue({ id: 's1' } as any);
 
-      await expect(service.addFavoriteSkill('u1', 's1')).rejects.toBeInstanceOf(ConflictException);
+      await expect(service.addFavoriteSkill('u1', 's1')).rejects.toBeInstanceOf(
+        ConflictException,
+      );
     });
 
     it('adds to favorites and saves user', async () => {
@@ -189,7 +217,9 @@ describe('SkillsService', () => {
       skillsRepository.findOne.mockResolvedValue(skill);
       usersRepository.save.mockResolvedValue(user);
 
-      await expect(service.addFavoriteSkill('u1', 's1')).resolves.toBeUndefined();
+      await expect(
+        service.addFavoriteSkill('u1', 's1'),
+      ).resolves.toBeUndefined();
       expect(user.favoriteSkills).toEqual([skill]);
       expect(usersRepository.save).toHaveBeenCalledWith(user);
     });
@@ -198,9 +228,9 @@ describe('SkillsService', () => {
   describe('removeFavoriteSkill', () => {
     it('throws 404 if user not found or no favorites', async () => {
       usersRepository.findOne.mockResolvedValue(null);
-      await expect(service.removeFavoriteSkill('u1', 's1')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.removeFavoriteSkill('u1', 's1'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('throws 404 if skill not in favorites', async () => {
@@ -209,9 +239,9 @@ describe('SkillsService', () => {
         favoriteSkills: [{ id: 's2' }],
       } as any);
 
-      await expect(service.removeFavoriteSkill('u1', 's1')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.removeFavoriteSkill('u1', 's1'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('removes skill from favorites and saves user', async () => {
@@ -222,7 +252,9 @@ describe('SkillsService', () => {
       usersRepository.findOne.mockResolvedValue(user);
       usersRepository.save.mockResolvedValue(user);
 
-      await expect(service.removeFavoriteSkill('u1', 's1')).resolves.toBeUndefined();
+      await expect(
+        service.removeFavoriteSkill('u1', 's1'),
+      ).resolves.toBeUndefined();
       expect(user.favoriteSkills).toEqual([{ id: 's2' }]);
       expect(usersRepository.save).toHaveBeenCalledWith(user);
     });

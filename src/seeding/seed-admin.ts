@@ -13,15 +13,14 @@ export async function seedAdmin(dataSource: DataSource) {
   const adminData = appConfigInstance.adminData;
 
   try {
-    const existingAdmin = await userRepository.findOne({ where: { email: adminData.email } });
+    const existingAdmin = await userRepository.findOne({
+      where: { email: adminData.email },
+    });
 
     if (existingAdmin) {
       console.log('Admin already exists. Skipping seeding.');
     } else {
-      const hashedPassword = await bcrypt.hash(
-        adminData.password,
-        saltRounds,
-      );
+      const hashedPassword = await bcrypt.hash(adminData.password, saltRounds);
 
       const admin: User = userRepository.create({
         name: adminData.name,
@@ -29,9 +28,9 @@ export async function seedAdmin(dataSource: DataSource) {
         password: hashedPassword,
         role: UserRole.ADMIN,
       });
-      
+
       await userRepository.save(admin);
-      
+
       console.log('Admin created successfully');
     }
   } catch (error) {

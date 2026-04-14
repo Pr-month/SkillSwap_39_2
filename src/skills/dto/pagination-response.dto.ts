@@ -1,8 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { SkillDto } from "./skills.dto";
+import { ApiProperty } from '@nestjs/swagger';
+import { SkillDto } from './skills.dto';
 
-export class PaginationResponseDto{
-@ApiProperty({
+export class PaginationResponseDto {
+  @ApiProperty({
     description: 'Массив навыков',
   })
   data: SkillDto[];

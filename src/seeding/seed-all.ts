@@ -1,10 +1,10 @@
-import { dbConfig } from "src/config/db.config";
-import { DataSource } from "typeorm";
-import { seedCategories } from "./seed-category";
-import { seedCities } from "./seed-cities";
-import { seedUser } from "./seed-user";
-import { seedSkills } from "./seed-skill";
-import { seedAdmin } from "./seed-admin";
+import { dbConfig } from 'src/config/db.config';
+import { DataSource } from 'typeorm';
+import { seedCategories } from './seed-category';
+import { seedCities } from './seed-cities';
+import { seedUser } from './seed-user';
+import { seedSkills } from './seed-skill';
+import { seedAdmin } from './seed-admin';
 
 export async function runAllSeeds() {
   console.log('Запуск сидинга');

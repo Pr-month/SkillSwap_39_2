@@ -12,7 +12,7 @@ export const appConfig = registerAs('APP_CONFIG', () => ({
     birthdate: '2000-01-01',
     gender: Gender.MALE,
     city: 'Ярославль',
-    about: ''
+    about: '',
   },
 }));
 

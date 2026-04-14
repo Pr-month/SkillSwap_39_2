@@ -6,10 +6,11 @@ import { seedUser } from './seed-user';
 import { seedSkills } from './seed-skill';
 import { seedAdmin } from './seed-admin';
 
-
 export async function SeedTestDatabase() {
   if (process.env.NODE_ENV !== 'test') {
-    throw new Error(`Этот скрипт можно запускать только в test окружении. Текущее: ${process.env.NODE_ENV}`);
+    throw new Error(
+      `Этот скрипт можно запускать только в test окружении. Текущее: ${process.env.NODE_ENV}`,
+    );
   }
 
   const dataSource = new DataSource(dbConfig());

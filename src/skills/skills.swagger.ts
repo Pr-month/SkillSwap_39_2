@@ -134,7 +134,8 @@ export const ApiUpdateSkill = () => {
     ApiBearerAuth(),
     ApiOperation({
       summary: 'Обновить навык',
-      description: 'Обновляет существующий навык. Только владелец навыка может его обновить. Требуется JWT токен.',
+      description:
+        'Обновляет существующий навык. Только владелец навыка может его обновить. Требуется JWT токен.',
     }),
     ApiParam({
       name: 'id',
@@ -189,14 +190,14 @@ export const ApiUpdateSkill = () => {
   );
 };
 
-
 export const ApiDeleteSkill = () => {
   return applyDecorators(
     ApiTags('Skills'),
     ApiBearerAuth(),
     ApiOperation({
       summary: 'Удалить навык',
-      description: 'Удаляет существующий навык. Только владелец навыка может его удалить. Требуется JWT токен.',
+      description:
+        'Удаляет существующий навык. Только владелец навыка может его удалить. Требуется JWT токен.',
     }),
     ApiParam({
       name: 'id',
@@ -247,7 +248,8 @@ export const ApiRemoveFavoriteSkill = () => {
     ApiBearerAuth(),
     ApiOperation({
       summary: 'Удалить навык из избранного',
-      description: 'Удаляет указанный навык из списка избранных текущего пользователя. Требуется JWT токен.',
+      description:
+        'Удаляет указанный навык из списка избранных текущего пользователя. Требуется JWT токен.',
     }),
     ApiParam({
       name: 'id',
@@ -297,4 +299,3 @@ export const ApiRemoveFavoriteSkill = () => {
     }),
   );
 };
-

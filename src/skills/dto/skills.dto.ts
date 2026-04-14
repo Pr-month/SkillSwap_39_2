@@ -68,7 +68,8 @@ export class SkillDto {
 
   @ApiPropertyOptional({
     description: 'Описание навыка',
-    example: 'Разговорные шаблоны, аудирование, базовая грамматика и словарь для поездок.',
+    example:
+      'Разговорные шаблоны, аудирование, базовая грамматика и словарь для поездок.',
     minLength: 2,
   })
   @IsString()
@@ -88,7 +89,10 @@ export class SkillDto {
 
   @ApiPropertyOptional({
     description: 'URL изображений навыка',
-    example: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
+    example: [
+      'https://example.com/image1.jpg',
+      'https://example.com/image2.jpg',
+    ],
     type: [String],
   })
   @IsString()
