@@ -27,7 +27,7 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   @Length(1, 100)
-  city?: string;
+  cityId?: string;
 
   @IsOptional()
   @IsEnum(Gender)

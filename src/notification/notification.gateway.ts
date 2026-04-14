@@ -4,7 +4,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,  
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { SocketWithUser } from './notification.types';
 import { WsJwtGuard } from 'src/guards/ws-jwt.guard';
