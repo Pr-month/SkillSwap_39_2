@@ -10,7 +10,7 @@ export class UpdateSkillDto {
   @IsString()
   @IsOptional()
   @MinLength(2)
-  name?: string;
+  title?: string;
 
   @ApiPropertyOptional({
     description: 'Описание навыка',

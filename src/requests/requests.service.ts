@@ -51,14 +51,14 @@ export class RequestsService {
       offeredSkill: request.offeredSkill
         ? {
             id: request.offeredSkill.id,
-            title: request.offeredSkill.name,
+            title: request.offeredSkill.title,
             category: request.offeredSkill.category?.name || '',
           }
         : null,
       requestedSkill: request.requestedSkill
         ? {
             id: request.requestedSkill.id,
-            title: request.requestedSkill.name,
+            title: request.requestedSkill.title,
             category: request.requestedSkill.category?.name || '',
           }
         : null,

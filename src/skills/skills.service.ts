@@ -60,7 +60,7 @@ export class SkillsService {
 
   async create(dto: CreateSkillDto, ownerId: string): Promise<Skill> {
     const skill = this.skillsRepository.create({
-      name: dto.name,
+      title: dto.title,
       description: dto.description,
       images: dto.images,
       owner: { id: ownerId },
@@ -69,7 +69,7 @@ export class SkillsService {
   }
 
   findAll(): Promise<Skill[]> {
-    return this.skillsRepository.find({ order: { name: 'ASC' } });
+    return this.skillsRepository.find({ order: { title: 'ASC' } });
   }
 
   async update(id: string, userId: string, updateSkillDto: UpdateSkillDto) {

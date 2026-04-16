@@ -35,9 +35,6 @@ export class Skill {
   owner: User;
 
   @Column()
-  name: string;
-
-  @Column()
   userId: string;
 
   @CreateDateColumn()

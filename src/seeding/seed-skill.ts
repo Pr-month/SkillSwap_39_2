@@ -34,7 +34,7 @@ export async function seedSkills(dataSource: DataSource) {
     }
 
     const existing = await skillRepository.findOne({
-      where: { name: skillData.name, userId: owner.id },
+      where: { title: skillData.title, userId: owner.id },
     });
 
     if (existing) continue;
@@ -42,7 +42,6 @@ export async function seedSkills(dataSource: DataSource) {
     const skill = skillRepository.create({
       title: skillData.title,
       description: skillData.description,
-      name: skillData.name,
       images: skillData.images ?? [],
 
       category,
