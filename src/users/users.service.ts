@@ -22,6 +22,8 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
     @Inject(appConfig.KEY)
     private readonly appConfig: TAppConfig,
+    @InjectRepository(City)
+    private readonly cityRepository: Repository<City>,
   ) {}
 
   async createUser(dto: RegisterDto): Promise<User> {
@@ -29,9 +31,17 @@ export class UsersService {
       dto.password,
       this.appConfig.hashSalt,
     );
+
+    const cityUser = await this.cityRepository.findOne({
+      where: { id: dto.cityId },
+    });
+
+    if (!cityUser) throw new NotFoundException('User cityId not found');
+
     const user: User = this.usersRepository.create({
       ...dto,
       password: hashedPassword,
+      city: cityUser,
     });
     return this.usersRepository.save(user);
   }
@@ -69,9 +79,14 @@ export class UsersService {
     Object.assign(user, updateData);
 
     if (cityId) {
-      user.city = { id: cityId } as City;
-    }
+      const cityUser = await this.cityRepository.findOne({
+        where: { id: cityId },
+      });
 
+      if (!cityUser) throw new NotFoundException('User cityId not found');
+
+      user.city = cityUser;
+    }
     return this.usersRepository.save(user);
   }
 
