@@ -90,14 +90,14 @@ describe('SkillsService', () => {
 
   describe('create', () => {
     it('creates and saves skill with owner id', async () => {
-      const dto = { name: 'n', description: 'd', images: [] } as any;
+      const dto = { title: 'n', description: 'd', images: [] } as any;
       const created = { id: 's1' } as any;
       skillsRepository.create.mockReturnValue(created);
       skillsRepository.save.mockResolvedValue(created);
 
       await expect(service.create(dto, 'u1')).resolves.toEqual(created);
       expect(skillsRepository.create).toHaveBeenCalledWith({
-        name: dto.name,
+        title: dto.title,
         description: dto.description,
         images: dto.images,
         owner: { id: 'u1' },
@@ -113,7 +113,7 @@ describe('SkillsService', () => {
 
       await expect(service.findAll()).resolves.toEqual(rows);
       expect(skillsRepository.find).toHaveBeenCalledWith({
-        order: { name: 'ASC' },
+        order: { title: 'ASC' },
       });
     });
   });
@@ -122,7 +122,7 @@ describe('SkillsService', () => {
     it('throws 404 if skill not found', async () => {
       skillsRepository.findOne.mockResolvedValue(null);
       await expect(
-        service.update('s1', 'u1', { name: 'x' } as any),
+        service.update('s1', 'u1', { title: 'x' } as any),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
 
@@ -132,19 +132,19 @@ describe('SkillsService', () => {
         userId: 'u2',
       } as any);
       await expect(
-        service.update('s1', 'u1', { name: 'x' } as any),
+        service.update('s1', 'u1', { title: 'x' } as any),
       ).rejects.toBeInstanceOf(ForbiddenException);
     });
 
     it('saves updated skill when owner matches', async () => {
-      const skill = { id: 's1', userId: 'u1', name: 'old' } as any;
+      const skill = { id: 's1', userId: 'u1', title: 'old' } as any;
       skillsRepository.findOne.mockResolvedValue(skill);
-      skillsRepository.save.mockResolvedValue({ ...skill, name: 'new' });
+      skillsRepository.save.mockResolvedValue({ ...skill, title: 'new' });
 
       await expect(
-        service.update('s1', 'u1', { name: 'new' } as any),
+        service.update('s1', 'u1', { title: 'new' } as any),
       ).resolves.toMatchObject({
-        name: 'new',
+        title: 'new',
       });
     });
   });
