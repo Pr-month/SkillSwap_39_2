@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SkillsService } from './skills.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import type { Repository } from 'typeorm';
+import type { DeleteResult, Repository } from 'typeorm';
 import { Skill } from './entities/skill.entity';
 import { User } from '../users/entities/user.entity';
 import {
@@ -9,6 +9,9 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { CreateSkillDto } from './dto/create-skill.dto';
+import { UpdateSkillDto } from './dto/update-skill.dto';
 
 describe('SkillsService', () => {
   let service: SkillsService;
@@ -24,7 +27,7 @@ describe('SkillsService', () => {
       save: jest.fn(),
       delete: jest.fn(),
       update: jest.fn(),
-    } as any;
+    } as unknown as jest.Mocked<Repository<Skill>>;
 
     usersRepository = {
       find: jest.fn(),
@@ -34,7 +37,7 @@ describe('SkillsService', () => {
       save: jest.fn(),
       delete: jest.fn(),
       update: jest.fn(),
-    } as any;
+    } as unknown as jest.Mocked<Repository<User>>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -60,17 +63,21 @@ describe('SkillsService', () => {
   describe('getSkillsWithPagination', () => {
     it('returns data with computed totalPages', async () => {
       skillsRepository.findAndCount.mockResolvedValue([
-        [{ id: 's1' } as any],
+        [{ id: 's1' }] as Skill[],
         11,
       ]);
 
       await expect(
-        service.getSkillsWithPagination({ page: 1, limit: 5 } as any),
+        service.getSkillsWithPagination({
+          page: 1,
+          limit: 5,
+        } as PaginationQueryDto),
       ).resolves.toMatchObject({
         page: 1,
         totalPages: 3,
       });
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(skillsRepository.findAndCount).toHaveBeenCalledWith({
         take: 5,
         skip: 0,
@@ -83,35 +90,46 @@ describe('SkillsService', () => {
       skillsRepository.findAndCount.mockResolvedValue([[], 0]);
 
       await expect(
-        service.getSkillsWithPagination({ page: 2, limit: 5 } as any),
+        service.getSkillsWithPagination({
+          page: 2,
+          limit: 5,
+        } as PaginationQueryDto),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
   describe('create', () => {
     it('creates and saves skill with owner id', async () => {
-      const dto = { title: 'n', description: 'd', images: [] } as any;
-      const created = { id: 's1' } as any;
+      const dto: CreateSkillDto = {
+        title: 'n',
+        description: 'd',
+        images: [],
+        categoryId: 's1',
+      };
+      const created = { id: 's1' } as Skill;
       skillsRepository.create.mockReturnValue(created);
       skillsRepository.save.mockResolvedValue(created);
 
       await expect(service.create(dto, 'u1')).resolves.toEqual(created);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(skillsRepository.create).toHaveBeenCalledWith({
         title: dto.title,
         description: dto.description,
         images: dto.images,
         owner: { id: 'u1' },
       });
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(skillsRepository.save).toHaveBeenCalledWith(created);
     });
   });
 
   describe('findAll', () => {
     it('returns skills ordered by name', async () => {
-      const rows = [{ id: 's1' }] as any;
+      const rows = [{ id: 's1' }] as Skill[];
       skillsRepository.find.mockResolvedValue(rows);
 
       await expect(service.findAll()).resolves.toEqual(rows);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(skillsRepository.find).toHaveBeenCalledWith({
         order: { title: 'ASC' },
       });
@@ -122,7 +140,7 @@ describe('SkillsService', () => {
     it('throws 404 if skill not found', async () => {
       skillsRepository.findOne.mockResolvedValue(null);
       await expect(
-        service.update('s1', 'u1', { title: 'x' } as any),
+        service.update('s1', 'u1', { title: 'x' } as UpdateSkillDto),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
 
@@ -130,19 +148,19 @@ describe('SkillsService', () => {
       skillsRepository.findOne.mockResolvedValue({
         id: 's1',
         userId: 'u2',
-      } as any);
+      } as Skill);
       await expect(
-        service.update('s1', 'u1', { title: 'x' } as any),
+        service.update('s1', 'u1', { title: 'x' } as UpdateSkillDto),
       ).rejects.toBeInstanceOf(ForbiddenException);
     });
 
     it('saves updated skill when owner matches', async () => {
-      const skill = { id: 's1', userId: 'u1', title: 'old' } as any;
+      const skill = { id: 's1', userId: 'u1', title: 'old' } as Skill;
       skillsRepository.findOne.mockResolvedValue(skill);
       skillsRepository.save.mockResolvedValue({ ...skill, title: 'new' });
 
       await expect(
-        service.update('s1', 'u1', { title: 'new' } as any),
+        service.update('s1', 'u1', { title: 'new' } as UpdateSkillDto),
       ).resolves.toMatchObject({
         title: 'new',
       });
@@ -161,7 +179,7 @@ describe('SkillsService', () => {
       skillsRepository.findOne.mockResolvedValue({
         id: 's1',
         userId: 'u2',
-      } as any);
+      } as Skill);
       await expect(service.deleteSkill('s1', 'u1')).rejects.toBeInstanceOf(
         ForbiddenException,
       );
@@ -171,10 +189,13 @@ describe('SkillsService', () => {
       skillsRepository.findOne.mockResolvedValue({
         id: 's1',
         userId: 'u1',
-      } as any);
-      skillsRepository.delete.mockResolvedValue({ affected: 1 } as any);
+      } as Skill);
+      skillsRepository.delete.mockResolvedValue({
+        affected: 1,
+      } as DeleteResult);
 
       await expect(service.deleteSkill('s1', 'u1')).resolves.toBeUndefined();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(skillsRepository.delete).toHaveBeenCalledWith('s1');
     });
   });
@@ -191,7 +212,7 @@ describe('SkillsService', () => {
       usersRepository.findOne.mockResolvedValue({
         id: 'u1',
         favoriteSkills: [],
-      } as any);
+      } as unknown as User);
       skillsRepository.findOne.mockResolvedValue(null);
       await expect(service.addFavoriteSkill('u1', 's1')).rejects.toBeInstanceOf(
         NotFoundException,
@@ -202,8 +223,8 @@ describe('SkillsService', () => {
       usersRepository.findOne.mockResolvedValue({
         id: 'u1',
         favoriteSkills: [{ id: 's1' }],
-      } as any);
-      skillsRepository.findOne.mockResolvedValue({ id: 's1' } as any);
+      } as User);
+      skillsRepository.findOne.mockResolvedValue({ id: 's1' } as Skill);
 
       await expect(service.addFavoriteSkill('u1', 's1')).rejects.toBeInstanceOf(
         ConflictException,
@@ -211,8 +232,8 @@ describe('SkillsService', () => {
     });
 
     it('adds to favorites and saves user', async () => {
-      const user = { id: 'u1', favoriteSkills: [] as any[] } as any;
-      const skill = { id: 's1' } as any;
+      const user = { id: 'u1', favoriteSkills: [] as Skill[] } as User;
+      const skill = { id: 's1' } as Skill;
       usersRepository.findOne.mockResolvedValue(user);
       skillsRepository.findOne.mockResolvedValue(skill);
       usersRepository.save.mockResolvedValue(user);
@@ -220,7 +241,9 @@ describe('SkillsService', () => {
       await expect(
         service.addFavoriteSkill('u1', 's1'),
       ).resolves.toBeUndefined();
+
       expect(user.favoriteSkills).toEqual([skill]);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(usersRepository.save).toHaveBeenCalledWith(user);
     });
   });
@@ -237,7 +260,7 @@ describe('SkillsService', () => {
       usersRepository.findOne.mockResolvedValue({
         id: 'u1',
         favoriteSkills: [{ id: 's2' }],
-      } as any);
+      } as User);
 
       await expect(
         service.removeFavoriteSkill('u1', 's1'),
@@ -248,7 +271,7 @@ describe('SkillsService', () => {
       const user = {
         id: 'u1',
         favoriteSkills: [{ id: 's1' }, { id: 's2' }],
-      } as any;
+      } as User;
       usersRepository.findOne.mockResolvedValue(user);
       usersRepository.save.mockResolvedValue(user);
 
@@ -256,6 +279,7 @@ describe('SkillsService', () => {
         service.removeFavoriteSkill('u1', 's1'),
       ).resolves.toBeUndefined();
       expect(user.favoriteSkills).toEqual([{ id: 's2' }]);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(usersRepository.save).toHaveBeenCalledWith(user);
     });
   });

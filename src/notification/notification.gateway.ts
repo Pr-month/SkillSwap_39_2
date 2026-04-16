@@ -20,17 +20,19 @@ export class NotificationsGateway
 
   constructor(private readonly wsJwtGuard: WsJwtGuard) {}
 
-  handleConnection(client: SocketWithUser) {
+  async handleConnection(client: SocketWithUser) {
     try {
       const payload = this.wsJwtGuard.verifyClient(client);
       client.user = payload;
-      client.join(payload.sub);
+      await client.join(payload.sub);
     } catch {
       client.disconnect(true);
     }
   }
 
-  handleDisconnect(client: SocketWithUser) {}
+  handleDisconnect(client: SocketWithUser) {
+    void client;
+  }
 
   sendToUser(userId: string, payload: NotificationPayloadDTO) {
     this.server.to(userId).emit('notification', payload);

@@ -26,7 +26,7 @@ export class RequestsService {
     private readonly skillsRepository: Repository<Skill>,
   ) {}
 
-  private toRequestDto(request: Request): RequestDto {
+  public toRequestDto(request: Request): RequestDto {
     return {
       id: request.id,
       createdAt: request.createdAt,
