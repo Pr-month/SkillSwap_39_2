@@ -47,7 +47,10 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { email } });
+    return this.usersRepository.findOne({
+      where: { email },
+      relations: ['city'],
+    });
   }
 
   async updateRefreshToken(
@@ -68,7 +71,10 @@ export class UsersService {
   }
 
   async findById(userId: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { id: userId } });
+    return this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['city'],
+    });
   }
 
   async updateUser(userId: string, dto: UpdateUserDto): Promise<User> {
@@ -117,6 +123,8 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    return this.usersRepository.find({
+      relations: ['city'],
+    });
   }
 }
