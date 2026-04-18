@@ -9,11 +9,13 @@ import {
 
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
+import { City } from 'src/cities/entities/city.entity';
 import { appConfig } from '../config/app.config';
 
 describe('UsersService', () => {
   let service: UsersService;
   let usersRepository: jest.Mocked<Repository<User>>;
+  let cityRepository: jest.Mocked<Repository<City>>;
 
   const appConfigMock = {
     hashSalt: 10,
@@ -30,12 +32,20 @@ describe('UsersService', () => {
       update: jest.fn(),
     } as any;
 
+    cityRepository = {
+      findOne: jest.fn(),
+    } as any;
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
           provide: getRepositoryToken(User),
           useValue: usersRepository,
+        },
+        {
+          provide: getRepositoryToken(City),
+          useValue: cityRepository,
         },
         {
           provide: appConfig.KEY,
