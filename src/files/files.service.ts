@@ -4,7 +4,7 @@ import * as path from 'path';
 
 // Конфигурация
 const fileConfig = {
-  minSizeFile: 1 * 1024, // 1 КБ
+  minSizeFile: 1 * 1024, // 1 КБ
   uploadPath: path.resolve(
     path.join(__dirname, '../..'),
     process.env.FILES_PATH_IMG || 'public/uploads',
@@ -46,6 +46,7 @@ export class FilesService {
       };
     } catch (error) {
       // Если произошла ошибка, удаляем временный файл
+      console.log(`Saving file error: ${error}`);
       await fs.unlink(filePath).catch(() => {});
       throw new BadRequestException('Ошибка при сохранении файла');
     }

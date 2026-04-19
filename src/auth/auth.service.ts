@@ -19,7 +19,9 @@ export class AuthService {
   ) {}
 
   async registerUser(dto: RegisterDto): Promise<{
-    user: User; accessToken: string; refreshToken: string
+    user: User;
+    accessToken: string;
+    refreshToken: string;
   }> {
     const user = await this.usersService.createUser(dto);
     const { accessToken, refreshToken } = await this.generateTokens(user);
@@ -67,7 +69,7 @@ export class AuthService {
 
     const { accessToken, refreshToken } = await this.generateTokens(user);
     await this.usersService.updateRefreshToken(user.id, refreshToken);
-    return { accessToken, refreshToken }
+    return { accessToken, refreshToken };
   }
 
   async logout(userId: string): Promise<void> {

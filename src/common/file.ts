@@ -6,6 +6,10 @@ import * as path from 'path';
 
 type DestinationCallback = (error: Error | null, destination: string) => void;
 type FileNameCallback = (error: Error | null, filename: string) => void;
+type UploadedFile = {
+  originalname: string;
+  mimetype: string;
+};
 
 const tempDir = path.resolve(
   path.join(__dirname, '../..', process.env.FILES_PATH_TEMP || 'public/temp'),
@@ -25,7 +29,7 @@ const generateFileName = (originalName: string): string => {
 const storage = multer.diskStorage({
   destination: (
     _req: Request,
-    _file: Express.Multer.File,
+    _file: UploadedFile,
     cb: DestinationCallback,
   ) => {
     cb(null, tempDir);
@@ -33,7 +37,7 @@ const storage = multer.diskStorage({
 
   filename: (
     _req: Request,
-    file: Express.Multer.File,
+    file: UploadedFile,
     cb: FileNameCallback,
   ) => {
     const uniqueName = generateFileName(file.originalname);
@@ -49,12 +53,12 @@ const types = [
   'image/svg+xml',
 ];
 
-const fileFilter = async (
+const fileFilter = (
   _req: Request,
-  file: Express.Multer.File,
+  file: UploadedFile,
   cb: FileFilterCallback,
 ) => {
-  const mimeType = file.mimetype.toLowerCase();
+  // const mimeType = file.mimetype.toLowerCase();
 
   if (!types.includes(file.mimetype)) {
     return cb(null, false);

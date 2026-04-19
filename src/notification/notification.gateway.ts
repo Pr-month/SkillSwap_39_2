@@ -2,14 +2,13 @@ import {
   WebSocketGateway,
   WebSocketServer,
   OnGatewayConnection,
-  OnGatewayDisconnect,  
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { SocketWithUser } from './notification.types';
 import { WsJwtGuard } from 'src/guards/ws-jwt.guard';
-import {  NotificationPayloadDTO } from './dto/notification.dto';
-
+import { NotificationPayloadDTO } from './dto/notification.dto';
 
 @Injectable()
 @WebSocketGateway({ cors: true })
@@ -21,17 +20,18 @@ export class NotificationsGateway
 
   constructor(private readonly wsJwtGuard: WsJwtGuard) {}
 
-  handleConnection(client: SocketWithUser) {
+  async handleConnection(client: SocketWithUser) {
     try {
       const payload = this.wsJwtGuard.verifyClient(client);
       client.user = payload;
-      client.join(payload.sub);
+      await client.join(payload.sub);
     } catch {
       client.disconnect(true);
     }
   }
 
   handleDisconnect(client: SocketWithUser) {
+    void client;
   }
 
   sendToUser(userId: string, payload: NotificationPayloadDTO) {

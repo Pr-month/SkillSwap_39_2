@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { appConfig, TAppConfig } from '../config/app.config';
 import { RegisterDto } from 'src/auth/dto/register.dto';
+import { City } from 'src/cities/entities/city.entity';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,8 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
     @Inject(appConfig.KEY)
     private readonly appConfig: TAppConfig,
+    @InjectRepository(City)
+    private readonly cityRepository: Repository<City>,
   ) {}
 
   async createUser(dto: RegisterDto): Promise<User> {
@@ -28,15 +31,26 @@ export class UsersService {
       dto.password,
       this.appConfig.hashSalt,
     );
+
+    const cityUser = await this.cityRepository.findOne({
+      where: { id: dto.cityId },
+    });
+
+    if (!cityUser) throw new NotFoundException('User cityId not found');
+
     const user: User = this.usersRepository.create({
       ...dto,
       password: hashedPassword,
+      city: cityUser,
     });
     return this.usersRepository.save(user);
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { email } });
+    return this.usersRepository.findOne({
+      where: { email },
+      relations: ['city'],
+    });
   }
 
   async updateRefreshToken(
@@ -57,18 +71,28 @@ export class UsersService {
   }
 
   async findById(userId: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { id: userId } });
+    return this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['city'],
+    });
   }
 
   async updateUser(userId: string, dto: UpdateUserDto): Promise<User> {
     const user = await this.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+    const { cityId, ...updateData } = dto;
+    Object.assign(user, updateData);
+
+    if (cityId) {
+      const cityUser = await this.cityRepository.findOne({
+        where: { id: cityId },
+      });
+
+      if (!cityUser) throw new NotFoundException('User cityId not found');
+
+      user.city = cityUser;
     }
-
-    Object.assign(user, dto);
-
     return this.usersRepository.save(user);
   }
 
@@ -99,6 +123,8 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    return this.usersRepository.find({
+      relations: ['city'],
+    });
   }
 }

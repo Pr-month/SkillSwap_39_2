@@ -1,21 +1,14 @@
-import { AppDataSource } from '../config/db.config';
-
 import { Skill } from '../skills/entities/skill.entity';
 import { User } from '../users/entities/user.entity';
 import { Category } from '../categories/entities/category.entity';
 
 import { SeedSkillData } from './seed-skill.data';
+import { DataSource } from 'typeorm';
 
-async function seedSkills() {
-  await AppDataSource.initialize();
-
-  AppDataSource.setOptions({
-    logging: false,
-  });
-
-  const skillRepository = AppDataSource.getRepository(Skill);
-  const userRepository = AppDataSource.getRepository(User);
-  const categoryRepository = AppDataSource.getRepository(Category);
+export async function seedSkills(dataSource: DataSource) {
+  const skillRepository = dataSource.getRepository(Skill);
+  const userRepository = dataSource.getRepository(User);
+  const categoryRepository = dataSource.getRepository(Category);
 
   const skillCount = await skillRepository.count();
   if (skillCount > 0) {
@@ -41,7 +34,7 @@ async function seedSkills() {
     }
 
     const existing = await skillRepository.findOne({
-      where: { name: skillData.name, userId: owner.id },
+      where: { title: skillData.title, userId: owner.id },
     });
 
     if (existing) continue;
@@ -49,7 +42,6 @@ async function seedSkills() {
     const skill = skillRepository.create({
       title: skillData.title,
       description: skillData.description,
-      name: skillData.name,
       images: skillData.images ?? [],
 
       category,
@@ -63,11 +55,3 @@ async function seedSkills() {
 
   console.log('Skills seeded successfully');
 }
-
-seedSkills()
-  .catch((error) => console.log('Error seeding skills:', error))
-  .finally(() => {
-    if (AppDataSource.isInitialized) {
-      AppDataSource.destroy();
-    }
-  });

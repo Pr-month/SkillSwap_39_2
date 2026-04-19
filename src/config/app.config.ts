@@ -1,5 +1,4 @@
 import { ConfigType, registerAs } from '@nestjs/config';
-import passport from 'passport';
 import { Gender } from 'src/users/users.enums';
 
 export const appConfig = registerAs('APP_CONFIG', () => ({
@@ -12,7 +11,7 @@ export const appConfig = registerAs('APP_CONFIG', () => ({
     birthdate: '2000-01-01',
     gender: Gender.MALE,
     city: 'Ярославль',
-    about: ''
+    about: '',
   },
 }));
 

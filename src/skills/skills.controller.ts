@@ -18,18 +18,30 @@ import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 import { SkillsService } from './skills.service';
+import {
+  ApiAddFavoriteSkill,
+  ApiCreateSkill,
+  ApiDeleteSkill,
+  ApiFindAllSkills,
+  ApiFindSimilarSkills,
+  ApiRemoveFavoriteSkill,
+  ApiUpdateSkill,
+} from './skills.swagger';
+import { FindSimilarSkillsQueryDto } from './dto/similar-skills-query.dto';
 
 @Controller('skills')
 export class SkillsController {
   constructor(private readonly skillsService: SkillsService) {}
 
   @Get()
+  @ApiFindAllSkills()
   async findAll(@Query() query: PaginationQueryDto) {
     return this.skillsService.getSkillsWithPagination(query);
   }
 
   @Post()
   @UseGuards(JwtAuthGuard)
+  @ApiCreateSkill()
   create(
     @Req() req: RequestWithUser,
     @Body() dto: CreateSkillDto,
@@ -39,6 +51,7 @@ export class SkillsController {
 
   @Post(':id/favorite')
   @UseGuards(JwtAuthGuard)
+  @ApiAddFavoriteSkill()
   async addFavorite(
     @Param('id') id: string,
     @Req() req: RequestWithUser,
@@ -49,6 +62,7 @@ export class SkillsController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
+  @ApiUpdateSkill()
   async update(
     @Param('id') id: string,
     @Req() req: IRequestWithUser,
@@ -59,6 +73,7 @@ export class SkillsController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
+  @ApiDeleteSkill()
   async deleteSkill(
     @Param('id') id: string,
     @Req() req: RequestWithUser,
@@ -70,8 +85,26 @@ export class SkillsController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id/favorite')
+  @ApiRemoveFavoriteSkill()
   async removeFavorite(@Param('id') id: string, @Req() req: RequestWithUser) {
     await this.skillsService.removeFavoriteSkill(req.user.sub, id);
     return { message: 'Skill removed from favorites' };
+  }
+
+  @Get(':id/similar')
+  @ApiFindSimilarSkills()
+  async findSimilarSkills(
+    @Param('id') id: string,
+    @Query() query: FindSimilarSkillsQueryDto,
+  ) {
+    const users = await this.skillsService.findSimilarUsersBySkill(
+      id,
+      query.limit,
+    );
+
+    return {
+      users: users,
+      count: users.length,
+    };
   }
 }

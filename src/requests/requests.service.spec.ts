@@ -4,9 +4,14 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Request } from './entities/request.entity';
 import { Skill } from '../skills/entities/skill.entity';
 import type { Repository } from 'typeorm';
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { RequestStatus } from './requests.enum';
 import { UserRole } from '../users/users.enums';
+import { NotificationsGateway } from '../notification/notification.gateway';
 
 describe('RequestsService', () => {
   let service: RequestsService;
@@ -34,6 +39,8 @@ describe('RequestsService', () => {
       update: jest.fn(),
     } as any;
 
+    const notificationsGatewayMock = { sendToUser: jest.fn() };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RequestsService,
@@ -44,6 +51,10 @@ describe('RequestsService', () => {
         {
           provide: getRepositoryToken(Skill),
           useValue: skillsRepository,
+        },
+        {
+          provide: NotificationsGateway,
+          useValue: notificationsGatewayMock,
         },
       ],
     }).compile();
@@ -61,7 +72,10 @@ describe('RequestsService', () => {
       const rows = [{ id: 'r1' }, { id: 'r2' }] as Request[];
       requestsRepository.find.mockResolvedValue(rows);
 
-      await expect(service.getOutgoingRequests(userId)).resolves.toEqual(rows);
+      const expectRows = rows.map((request) => service.toRequestDto(request));
+      await expect(service.getOutgoingRequests(userId)).resolves.toEqual(
+        expectRows,
+      );
       expect(requestsRepository.find).toHaveBeenCalledWith({
         where: { sender: { id: userId } },
         relations: ['receiver', 'offeredSkill', 'requestedSkill'],
@@ -76,7 +90,10 @@ describe('RequestsService', () => {
       const rows = [{ id: 'r1' }] as Request[];
       requestsRepository.find.mockResolvedValue(rows);
 
-      await expect(service.getIncomingRequests(userId)).resolves.toEqual(rows);
+      const expectRows = rows.map((request) => service.toRequestDto(request));
+      await expect(service.getIncomingRequests(userId)).resolves.toEqual(
+        expectRows,
+      );
       expect(requestsRepository.find).toHaveBeenCalledWith({
         where: { receiver: { id: userId } },
         relations: ['sender', 'offeredSkill', 'requestedSkill'],
@@ -161,12 +178,13 @@ describe('RequestsService', () => {
       requestsRepository.create.mockReturnValue(created);
       requestsRepository.save.mockResolvedValue(created);
 
+      const expectCreated = service.toRequestDto(created);
       await expect(
         service.createRequests(userId, {
           requestedSkillId: 's_req',
           offeredSkillId: 's_off',
         }),
-      ).resolves.toEqual(created);
+      ).resolves.toEqual(expectCreated);
 
       expect(requestsRepository.create).toHaveBeenCalledWith({
         senderId: userId,
@@ -224,7 +242,10 @@ describe('RequestsService', () => {
         status: RequestStatus.PENDING,
       } as any;
       requestsRepository.findOne.mockResolvedValue(req);
-      requestsRepository.save.mockResolvedValue({ ...req, status: RequestStatus.ACCEPTED });
+      requestsRepository.save.mockResolvedValue({
+        ...req,
+        status: RequestStatus.ACCEPTED,
+      });
 
       await expect(
         service.updateStatus(
@@ -243,7 +264,10 @@ describe('RequestsService', () => {
         status: RequestStatus.PENDING,
       } as any;
       requestsRepository.findOne.mockResolvedValue(req);
-      requestsRepository.save.mockResolvedValue({ ...req, status: RequestStatus.REJECTED });
+      requestsRepository.save.mockResolvedValue({
+        ...req,
+        status: RequestStatus.REJECTED,
+      });
 
       await expect(
         service.updateStatus(

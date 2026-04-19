@@ -60,7 +60,7 @@ export class SkillsService {
 
   async create(dto: CreateSkillDto, ownerId: string): Promise<Skill> {
     const skill = this.skillsRepository.create({
-      name: dto.name,
+      title: dto.title,
       description: dto.description,
       images: dto.images,
       owner: { id: ownerId },
@@ -69,7 +69,7 @@ export class SkillsService {
   }
 
   findAll(): Promise<Skill[]> {
-    return this.skillsRepository.find({ order: { name: 'ASC' } });
+    return this.skillsRepository.find({ order: { title: 'ASC' } });
   }
 
   async update(id: string, userId: string, updateSkillDto: UpdateSkillDto) {
@@ -154,5 +154,38 @@ export class SkillsService {
     user.favoriteSkills.splice(skillIndex, 1);
 
     await this.usersRepository.save(user);
+  }
+
+  async findSimilarUsersBySkill(
+    skillId: string,
+    limit: number,
+  ): Promise<User[]> {
+    const currentSkill = await this.skillsRepository.findOne({
+      where: { id: skillId },
+      relations: ['category', 'owner'],
+    });
+
+    if (!currentSkill) {
+      throw new NotFoundException('Навык не найден');
+    }
+
+    if (!currentSkill.category) {
+      throw new NotFoundException('У навыка нет категории');
+    }
+
+    const users = await this.usersRepository
+      .createQueryBuilder('user')
+      .innerJoin('user.skills', 'skill')
+      .where('skill.categoryId = :categoryId', {
+        categoryId: currentSkill.category.id,
+      })
+      .andWhere('user.id != :currentUserId', {
+        currentUserId: currentSkill.owner.id,
+      })
+      .distinct(true)
+      .limit(limit)
+      .getMany();
+
+    return users;
   }
 }
