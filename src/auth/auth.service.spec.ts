@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import { jwtConfig } from '../config/jwt.config';
 import * as bcrypt from 'bcrypt';
-import { UserRole } from '../users/users.enums';
+import { Gender, UserRole } from '../users/users.enums';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -62,12 +62,19 @@ describe('AuthService', () => {
 
   describe('registerUser', () => {
     it('должен успешно зарегистрировать пользователя и вернуть токены', async () => {
-      const result = await service.registerUser(
-        'test@example.com',
-        'password123',
-      );
+      const dto = {
+        email: 'test@example.com',
+        password: 'password123',
+        name: 'Test User',
+        gender: Gender.OTHER,
+        cityId: 'city-1',
+        about: 'About',
+        birthdate: '2000-01-01',
+      };
 
-      expect(usersService.createUser).toHaveBeenCalled();
+      const result = await service.registerUser(dto);
+
+      expect(usersService.createUser).toHaveBeenCalledWith(dto);
       expect(result).toHaveProperty('accessToken');
       expect(result.user.email).toEqual('test@example.com');
     });

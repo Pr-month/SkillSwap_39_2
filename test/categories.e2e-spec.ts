@@ -114,7 +114,9 @@ describe('CategoriesController (E2E)', () => {
   });
 
   it('GET /categories -> 200 (public)', async () => {
-    const res = await request(app.getHttpServer()).get('/categories').expect(200);
+    const res = await request(app.getHttpServer())
+      .get('/categories')
+      .expect(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
 

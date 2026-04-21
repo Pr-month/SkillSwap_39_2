@@ -301,7 +301,6 @@ export const ApiRemoveFavoriteSkill = () => {
   );
 };
 
-
 export const ApiFindSimilarSkills = () => {
   return applyDecorators(
     ApiTags('Skills'),

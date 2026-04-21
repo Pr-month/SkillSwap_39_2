@@ -2,15 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import {
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { City } from 'src/cities/entities/city.entity';
 import { appConfig } from '../config/app.config';
+import { Gender } from './users.enums';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -64,24 +62,40 @@ describe('UsersService', () => {
 
   describe('createUser', () => {
     it('hashes password, creates entity and saves user', async () => {
-      const email = 'a@b.com';
-      const password = 'plain';
+      const dto = {
+        email: 'a@b.com',
+        password: 'plain',
+        name: 'Test User',
+        gender: Gender.OTHER,
+        cityId: 'city-1',
+        about: 'About',
+        birthdate: '2000-01-01',
+      };
       const hashed = 'hashed-pass';
+      const city = { id: dto.cityId, name: 'Moscow' } as any;
 
       jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashed as never);
+      cityRepository.findOne.mockResolvedValue(city);
 
-      const created = { email, password: hashed } as any;
-      const saved = { id: 'u1', email, password: hashed } as any;
+      const created = { ...dto, password: hashed, city } as any;
+      const saved = { id: 'u1', ...created } as any;
 
       usersRepository.create.mockReturnValue(created);
       usersRepository.save.mockResolvedValue(saved);
 
-      await expect(service.createUser(email, password)).resolves.toEqual(saved);
+      await expect(service.createUser(dto)).resolves.toEqual(saved);
 
-      expect(bcrypt.hash).toHaveBeenCalledWith(password, appConfigMock.hashSalt);
+      expect(bcrypt.hash).toHaveBeenCalledWith(
+        dto.password,
+        appConfigMock.hashSalt,
+      );
+      expect(cityRepository.findOne).toHaveBeenCalledWith({
+        where: { id: dto.cityId },
+      });
       expect(usersRepository.create).toHaveBeenCalledWith({
-        email,
+        ...dto,
         password: hashed,
+        city,
       });
       expect(usersRepository.save).toHaveBeenCalledWith(created);
     });
@@ -96,6 +110,7 @@ describe('UsersService', () => {
 
       expect(usersRepository.findOne).toHaveBeenCalledWith({
         where: { email: 'a@b.com' },
+        relations: ['city'],
       });
     });
   });
@@ -109,6 +124,7 @@ describe('UsersService', () => {
 
       expect(usersRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'u1' },
+        relations: ['city'],
       });
     });
   });
@@ -118,7 +134,9 @@ describe('UsersService', () => {
       jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed-rt' as never);
       usersRepository.update.mockResolvedValue({} as any);
 
-      await expect(service.updateRefreshToken('u1', 'rt')).resolves.toBeUndefined();
+      await expect(
+        service.updateRefreshToken('u1', 'rt'),
+      ).resolves.toBeUndefined();
 
       expect(bcrypt.hash).toHaveBeenCalledWith('rt', appConfigMock.hashSalt);
       expect(usersRepository.update).toHaveBeenCalledWith('u1', {
@@ -132,7 +150,9 @@ describe('UsersService', () => {
       usersRepository.update.mockResolvedValue({} as any);
 
       await expect(service.removeRefreshToken('u1')).resolves.toBeUndefined();
-      expect(usersRepository.update).toHaveBeenCalledWith('u1', { refreshToken: null });
+      expect(usersRepository.update).toHaveBeenCalledWith('u1', {
+        refreshToken: null,
+      });
     });
   });
 
@@ -140,8 +160,9 @@ describe('UsersService', () => {
     it('throws 404 if user not found', async () => {
       usersRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.updateUser('u404', { email: 'x@x.com' } as any))
-        .rejects.toBeInstanceOf(NotFoundException);
+      await expect(
+        service.updateUser('u404', { email: 'x@x.com' } as any),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('assigns dto and saves user', async () => {
@@ -149,8 +170,9 @@ describe('UsersService', () => {
       usersRepository.findOne.mockResolvedValue(user);
       usersRepository.save.mockImplementation(async (u) => u as any);
 
-      await expect(service.updateUser('u1', { email: 'new@a.com' } as any))
-        .resolves.toMatchObject({ id: 'u1', email: 'new@a.com' });
+      await expect(
+        service.updateUser('u1', { email: 'new@a.com' } as any),
+      ).resolves.toMatchObject({ id: 'u1', email: 'new@a.com' });
 
       expect(usersRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ id: 'u1', email: 'new@a.com' }),
@@ -171,7 +193,10 @@ describe('UsersService', () => {
     });
 
     it('throws 401 if payload email mismatch', async () => {
-      usersRepository.findOne.mockResolvedValue({ id: 'u1', email: 'user@a.com' } as any);
+      usersRepository.findOne.mockResolvedValue({
+        id: 'u1',
+        email: 'user@a.com',
+      } as any);
 
       await expect(
         service.updatePassword(
@@ -182,7 +207,10 @@ describe('UsersService', () => {
     });
 
     it('throws 401 if dto email mismatch', async () => {
-      usersRepository.findOne.mockResolvedValue({ id: 'u1', email: 'user@a.com' } as any);
+      usersRepository.findOne.mockResolvedValue({
+        id: 'u1',
+        email: 'user@a.com',
+      } as any);
 
       await expect(
         service.updatePassword(
@@ -206,8 +234,13 @@ describe('UsersService', () => {
         ),
       ).resolves.toEqual(user);
 
-      expect(bcrypt.hash).toHaveBeenCalledWith('newPass', appConfigMock.hashSalt);
-      expect(usersRepository.update).toHaveBeenCalledWith('u1', { password: 'hashed-new' });
+      expect(bcrypt.hash).toHaveBeenCalledWith(
+        'newPass',
+        appConfigMock.hashSalt,
+      );
+      expect(usersRepository.update).toHaveBeenCalledWith('u1', {
+        password: 'hashed-new',
+      });
     });
   });
 
@@ -217,7 +250,9 @@ describe('UsersService', () => {
       usersRepository.find.mockResolvedValue(rows);
 
       await expect(service.findAll()).resolves.toEqual(rows);
-      expect(usersRepository.find).toHaveBeenCalled();
+      expect(usersRepository.find).toHaveBeenCalledWith({
+        relations: ['city'],
+      });
     });
   });
 });
