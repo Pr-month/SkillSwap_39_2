@@ -1,73 +1,298 @@
-# React + TypeScript + Vite
+# SkillSwap — Техническая документация проекта
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Проект:** SkillSwap  
+> **Технологии:** Vite, React, TypeScript, Redux Toolkit, CSS Modules, Storybook, Cypress, Jest, Husky
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Основные команды
 
-## React Compiler
+| Назначение             | Скрипт                    |
+| ---------------------- | ------------------------- |
+| Запуск dev-сервера     | `npm run dev`             |
+| Сборка для production  | `npm run build`           |
+| Запуск Storybook       | `npm run storybook`       |
+| Запуск Prettier        | `npm run prettier`        |
+| Линтинг                | `npm run lint`            |
+| Unit-тесты (Jest)      | `npm run test`            |
+| Cypress (UI E2E)       | `npm run cypress:open`    |
+| Установка Git-хуков    | `npm run prepare`         |
+| Проверка стилей        | `npm run stylelint:check` |
+| Автоисправление стилей | `npm run stylelint`       |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 📁 Структура проекта
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+project-root/
+├── .husky/               # Git-хуки
+├── .storybook/           # Storybook конфигурация
+├── cypress/              # E2E-тесты
+├── public/               # Статика для быстрого рендера
+└── src/                  # Весь исходный код приложения
+    ├── api/              # методы работы с мок-JSON (axios/fetch)
+    ├── app/              # Инициализация приложения, провайдеры, стили
+    ├── pages/            # Реализация страниц (роутов)
+    ├── widgets/          # Виджеты — крупные переиспользуемые блоки (Header и др.)
+    ├── features/         # Бизнес-функции: формы, интерактив
+    ├── entities/         # Сущности бизнес-домена: User, Skill и т.д.
+    └── shared/           # UI-кит, хелперы, утилиты, глобальные хуки и стили
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🧠 Расшифровка слоёв FSD
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- `app/` — инициализация приложения, подключение провайдеров, глобальные стили.
+- `pages/` — маршруты приложения. Собирают `widgets` и `features`.
+- `widgets/` — крупные переиспользуемые блоки интерфейса, могут включать `features`, `entities`.
+- `features/` — логика одной бизнес-фичи (добавить в избранное, фильтр и т.п.).
+- `entities/` — бизнес-сущности (User, Skill) и их визуальные компоненты.
+- `shared/` — атомарные компоненты, утилиты, API-инстансы, глобальные хуки.
+
+---
+
+## 🧩 Универсальные компоненты
+
+Каждый компонент располагается в отдельной папке, структура которой строго стандартизирована:
+
 ```
+сomponentName/
+├── сomponentName.tsx          # Основной файл компонента
+├── componentName.module.css   # Стили через CSS Modules
+└── componentName.ts           # Вынесенная логика (по необходимости)
+```
+
+### Правила:
+
+- **Нейминг:** Название файлов — в camelCase.
+- **Стили:** Только `.module.css`, чтобы избежать конфликтов имен.
+- **Изоляция:** Компоненты не должны зависеть от внешней логики или контекста.
+- **Функции:** Только чистые функции, без побочных эффектов.
+- **Документация:** Обязательно создается `.stories.tsx` файл для каждого компонента.
+
+---
+
+## 📄 `src/pages/`: Страницы приложения
+
+Каждая директория в `pages/` соответствует одной странице. Страница собирается из компонентов.
+
+### Пример структуры:
+
+```
+Vacancy/
+├── Vacancy.tsx             # Страница: подключает секции и компоненты
+├── vacancy.module.css      # Глобальные стили страницы
+└── templates/              # Секции страницы
+    ├── __vacancyAside/
+    │   ├── VacancyAside.tsx
+    │   ├── vacancyAside.module.css
+    │   └── vacancyAside.ts
+    └── __vacancyDetails/  # Другие секции по аналогии
+```
+
+### Рекомендации:
+
+- Делите страницу на логические секции (templates).
+- Все секции реализуются как абстрактные компоненты.
+- Не смешивайте стили разных секций.
+
+---
+
+### 📦 `src/services`
+
+Папка `services` содержит глобальные сервисы приложения, включая конфигурацию Redux Store и отдельные `slices`, реализованные через `@reduxjs/toolkit`.
+
+#### `store.ts`
+
+Это центральное хранилище Redux. Здесь происходит:
+
+- Инициализация `configureStore()` с `reducer`-ами от `slices`.
+- Подключение `middleware` (по умолчанию используется `getDefaultMiddleware()`).
+- Экспорт типов `RootState` и `AppDispatch` для типизации хуков `useAppSelector` и `useAppDispatch`.
+
+#### `slices/`
+
+В этой директории находятся все `slice`-модули, каждый из которых:
+
+- Инкапсулирует состояние конкретного домена (например, `userSlice`, `skillSlice`, `authSlice`).
+- Включает `reducers` и `async thunks` для работы с API и состоянием.
+- Использует `createSlice()` из `@reduxjs/toolkit`.
+
+---
+
+## 🖼 `app/assets/static/`: Статичные ресурсы
+
+Директория содержит изображения и иконки.
+
+### Пример структуры:
+
+```
+static/
+├── background/
+├── icons/
+├── logos/
+└── ...
+```
+
+---
+
+## 🎨 `styles/`: Глобальные CSS-стили
+
+Используется для оформления глобальных HTML-элементов и page-level блоков.
+
+- `.css` — глобальные стили (например, `section`, `main`, `article` и др.)
+- `.module.css` — стили только для компонентов
+
+### Рекомендации:
+
+- Используйте `module.css` в компонентах — это защищает от конфликтов.
+- В `styles/` можно добавлять глобальные переменные, layout-сетки и обёртки.
+
+- Все визуальные параметры (цвета, скругления, отступы и пр.) определяются через `variables.css`
+- CSS-переменные позволяют внедрять темы (светлая/тёмная) централизованно
+
+---
+
+## 📘 Storybook
+
+Каждый компонент должен иметь файл документации в формате `*.stories.tsx`:
+
+- Отображение визуальных состояний
+- Изолированное тестирование компонентов
+- Описание props и взаимодействий
+
+---
+
+## 🧼 Code Style и принципы разработки
+
+| Принцип      | Описание                                                           |
+| ------------ | ------------------------------------------------------------------ |
+| FSD          | Архитектура строго по Feature-Sliced Design                        |
+| DRY          | Не дублируем код, выносим в reusable функции и компоненты          |
+| PureFunction | Все функции — чистые. Без мутаций и побочных эффектов              |
+| Readability  | Используем `Prettier`, читаемый и понятный код                     |
+| Isolation    | Компоненты не зависят от глобального состояния                     |
+| SOLID        | Следуем принципам SOLID при проектировании логики и компонентов    |
+| Docs First   | Каждый компонент сопровождается документацией и Storybook-примером |
+
+---
+
+## 🧪 Тестирование
+
+- **Unit**: `Jest` для unit-тестов (`npm run test`)
+- **E2E**: `Cypress` (`npm run cypress:open`)
+
+---
+
+## 📦 Папка `dist`: Результат сборки проекта
+
+- Папка `dist` создается автоматически при выполнении команды `npm run build`.
+- В ней лежит оптимизированный, готовый к продакшену код, который будет развернут на сервере.
+- Важно, чтобы в итоговой сборке **не было отладочной информации**:
+  - **Отладочные `console.log`, `console.debug` и прочие вызовы должны быть удалены.**
+  - В коде не должно оставаться закомментированных блоков с тестами или временными правками.
+  - Все исходники должны быть скомпилированы и минимизированы.
+- Код в `dist` должен быть максимально производительным и легковесным, без лишних зависимостей.
+- Любые ошибки и предупреждения сборки должны быть исправлены до деплоя.
+
+---
+
+## 🔀 Git flow: Ветки и правила коммитов
+
+### 🌿 Основные ветки
+
+- `main` — продакшен-ветка. В нее попадают только стабильные версии после полного тестирования и релиза.
+- `dev` — основная рабочая ветка. Все новые фичи, фиксы и задачи разрабатываются в отдельных ветках и **вливаются только через Pull Request с код-ревью**.
+
+### 🌱 Фича-ветки
+
+Для каждой задачи создается отдельная ветка от `dev`. Название ветки должно быть осмысленным и включать префикс по типу задачи:
+
+```
+feature/registration-form
+bugfix/fix-input-validation
+refactor/sidebar-layout
+hotfix/login-crash
+fix/modal-open
+```
+
+### 🔒 Сливаем изменения через Pull Request
+
+- Только через Pull Request (PR), **никаких прямых пушей в `dev` или `main`**.
+- Каждый PR должен проходить код-ревью.
+- Перед мержем убедись, что конфликты решены и форматирование соблюдено (`npm run prettier`).
+
+### 📌 Слияние в `main`
+
+- Только после тестирования в `dev`.
+- В `main` попадают только стабильные и протестированные релизы.
+- Каждое слияние сопровождается тэгом версии (например, `v1.2.3`) и описанием изменений (release notes).
+
+---
+
+## ✅ Правила оформления коммитов
+
+Следуем семантическому стилю коммитов:
+
+```
+<type>(scope): краткое описание
+```
+
+### Примеры:
+
+```
+feat(auth): добавлен логин по email
+fix(api): исправлена ошибка 500 при получении данных
+refactor(ui): оптимизация компонента Button
+style(header): поправлены отступы
+docs(readme): обновлена инструкция по запуску
+```
+
+### Поддерживаемые типы:
+
+- `feat` — новая функциональность
+- `fix` — багфиксы
+- `refactor` — рефакторинг без изменения функциональности
+- `docs` — документация
+- `style` — изменения в стилях
+- `test` — добавление или правка тестов
+- `chore` — настройки, сборка, конфигурация
+
+---
+
+## 🛠️ Автоматизация контроля качества кода с Husky и lint-staged
+
+- Для обеспечения высокого качества кода и соблюдения стайлгайда используем инструменты Husky и lint-staged.
+
+### Что делают эти инструменты:
+
+- Husky — добавляет Git хуки, которые запускаются автоматически при коммитах и пушах.
+- lint-staged — позволяет запускать проверки и исправления только над теми файлами, которые были изменены в коммите.
+
+### Как настроено у нас:
+
+#### 1. Pre-commit hook запускает:
+
+- Форматирование кода с помощью Prettier.
+- Проверку TypeScript-компиляции (tsc --noEmit), чтобы не пропускать ошибки типизации.
+
+#### 2. Проверка имени ветки:
+
+- Перед коммитом автоматически проверяется имя текущей ветки.
+- Разрешены только ветки с именами:
+  - feature/имя-фичи
+  - bugfix/имя-исправления
+  - refactor/имя-рефакторинга
+  - hotfix/имя-горячего-фикса
+  - fix/имя-фикса
+- Основные ветки (main, master, dev) не проверяются.
+- Если имя ветки не соответствует шаблону, коммит блокируется с подсказкой по правильному формату.
+
+#### 3. Проверка сообщений коммитов:
+
+- Используется commitlint для проверки соответствия сообщений коммитов принятому формату (например, feat: ..., fix: ... и т.д.).
+- Если сообщение не соответствует правилам, коммит блокируется.
+
+#### 4. Если форматирование, проверки или имя ветки/коммита не проходят — коммит блокируется, и нужно исправить ошибки.
