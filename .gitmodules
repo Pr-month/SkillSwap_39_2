@@ -1,0 +1,3 @@
+[submodule "microsevices/mailer"]
+	path = microsevices/mailer
+	url = https://github.com/RolandSallaz/mailer-nest-js-example.git
