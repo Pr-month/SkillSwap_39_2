@@ -13,6 +13,7 @@ import { SkillDto } from './dto/skills.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { Skill } from './entities/skill.entity';
 import { User } from '../users/entities/user.entity';
+import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class SkillsService {
@@ -22,6 +23,9 @@ export class SkillsService {
 
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+
+    @InjectRepository(Category)
+    private readonly categoriesRepository: Repository<Category>,
   ) {}
 
   async getSkillsWithPagination(paginationQuery: PaginationQueryDto): Promise<{
@@ -59,12 +63,31 @@ export class SkillsService {
   }
 
   async create(dto: CreateSkillDto, ownerId: string): Promise<Skill> {
+    const category = await this.categoriesRepository.findOne({
+      where: { id: dto.categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    const owner = await this.usersRepository.findOne({
+      where: { id: ownerId },
+    });
+
+    if (!owner) {
+      throw new NotFoundException('Owner not found');
+    }
+
     const skill = this.skillsRepository.create({
       title: dto.title,
       description: dto.description,
       images: dto.images,
-      owner: { id: ownerId },
+      userId: ownerId,
+      owner,
+      category,
     });
+
     return this.skillsRepository.save(skill);
   }
 
