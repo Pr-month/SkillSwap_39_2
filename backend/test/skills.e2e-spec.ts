@@ -3,12 +3,19 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { DataSource } from 'typeorm';
+import { User } from '../src/users/entities/user.entity';
+import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { SeedUserData } from '../src/seeding/seed-user.data';
+import { AuthService } from '../src/auth/auth.service';
 
 describe('SkillsController (e2e)', () => {
   let app: INestApplication;
   let dataSource: DataSource;
   let accessToken: string;
   let mockCategoryId: string;
+  let userRepository: Repository<User>;
+  let authService: AuthService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -22,28 +29,28 @@ describe('SkillsController (e2e)', () => {
     );
 
     await app.init();
+
     dataSource = app.get(DataSource);
+    userRepository = moduleFixture.get(getRepositoryToken(User));
+    authService = moduleFixture.get<AuthService>(AuthService);
 
-    const loginRes = await request(app.getHttpServer())
-      .post('/auth/register')
-      .send({
-        email: 'test-skills@example.com',
-        password: 'Password123!',
-        name: 'Test User',
-      });
+    // Находим тестового пользователя
+    const testUser = await userRepository.findOne({
+      where: { email: SeedUserData[0].email },
+    });
 
-    if (loginRes.status !== 201) {
-      const res = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: 'test-skills@example.com', password: 'Password123!' });
-      accessToken = res.body.accessToken;
-    } else {
-      accessToken = loginRes.body.accessToken;
+    if (!testUser) {
+      throw new Error(
+        `Test user with email ${SeedUserData[0].email} not found in database. Please check seeding.`,
+      );
     }
+    // Генерируем JWT‑токен для тестового пользователя
+    accessToken = (
+      await authService.login(SeedUserData[0].email, SeedUserData[0].password)
+    ).accessToken;
 
     const category = await dataSource.getRepository('Category').save({
-      title: 'Test Category',
-      description: 'Test Description',
+      name: 'Test name Category',
     });
     mockCategoryId = category.id;
   });
